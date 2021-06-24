@@ -1,0 +1,3 @@
+[submodule "rollup-state-manager"]
+	path = rollup-state-manager
+	url = git@github.com:Fluidex/rollup-state-manager.git
