@@ -4,3 +4,6 @@
 [submodule "prover-cluster"]
 	path = prover-cluster
 	url = git@github.com:Fluidex/prover-cluster.git
+[submodule "dingir-exchange"]
+	path = dingir-exchange
+	url = git@github.com:Fluidex/dingir-exchange.git
