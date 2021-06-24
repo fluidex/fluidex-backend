@@ -32,7 +32,7 @@ snarkit compile $TARGET_CIRCUIT_DIR --force_recompile --backend=native
 cd $PROVER_DIR
 
 PORT=50055
-export DB_URL=postgres://exchange:exchange_AA9944@127.0.0.1/exchange # also needed for migrator
+export DB_URL=postgres://coordinator:coordinator_AA9944@127.0.0.1:5433/prover_cluster
 printf 'port: %d
 db: "%s"
 witgen:
@@ -42,8 +42,6 @@ witgen:
     block: "%s/circuit.fast"
 ' $PORT $DB_URL $TARGET_CIRCUIT_DIR > $PROVER_DIR/config/coordinator.yaml
 
-docker-compose --file $EXCHANGE_DIR/docker/docker-compose.yaml down
-docker-compose --file $EXCHANGE_DIR/docker/docker-compose.yaml up --detach
+docker-compose --file $EXCHANGE_DIR/docker/docker-compose.yaml --project-name exchange up --force-recreate --detach
+docker-compose --file $PROVER_DIR/docker/docker-compose.yaml --project-name cluster up --force-recreate --detach
 
-cargo build --release
-cargo run --bin migrator
