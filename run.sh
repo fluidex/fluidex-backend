@@ -32,7 +32,7 @@ cd $PROVER_DIR
 cargo build --release
 
 PORT=50055
-DB_URL=postgres://exchange:exchange_AA9944@127.0.0.1/exchange
+export DB_URL=postgres://exchange:exchange_AA9944@127.0.0.1/exchange # also needed for migrator
 printf 'port: %d
 db: "%s"
 witgen:
