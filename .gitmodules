@@ -1,3 +1,6 @@
 [submodule "rollup-state-manager"]
 	path = rollup-state-manager
 	url = git@github.com:Fluidex/rollup-state-manager.git
+[submodule "prover-cluster"]
+	path = prover-cluster
+	url = git@github.com:Fluidex/prover-cluster.git
