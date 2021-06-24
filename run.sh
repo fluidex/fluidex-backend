@@ -30,7 +30,6 @@ npm i
 snarkit compile $TARGET_CIRCUIT_DIR --force_recompile --backend=native
 
 cd $PROVER_DIR
-cargo build --release
 
 PORT=50055
 export DB_URL=postgres://exchange:exchange_AA9944@127.0.0.1/exchange # also needed for migrator
@@ -42,3 +41,9 @@ witgen:
   circuits:
     block: "%s/circuit.fast"
 ' $PORT $DB_URL $TARGET_CIRCUIT_DIR > $PROVER_DIR/config/coordinator.yaml
+
+docker-compose --file $EXCHANGE_DIR/docker/docker-compose.yaml down
+docker-compose --file $EXCHANGE_DIR/docker/docker-compose.yaml up --detach
+
+cargo build --release
+cargo run --bin migrator
