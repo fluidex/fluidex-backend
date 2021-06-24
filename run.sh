@@ -14,6 +14,7 @@ STATE_MNGR_DIR=$DIR/rollup-state-manager
 CIRCUITS_DIR=$STATE_MNGR_DIR/circuits
 TARGET_CIRCUIT_DIR=$CIRCUITS_DIR/testdata/Block_$NTXS"_"$BALANCELEVELS"_"$ORDERLEVELS"_"$ACCOUNTLEVELS
 PROVER_DIR=$DIR/prover-cluster
+EXCHANGE_DIR=$DIR/dingir-exchange
 
 # make sure submodule is correctly cloned!!
 git submodule update --init --recursive
