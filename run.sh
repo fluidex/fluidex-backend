@@ -16,6 +16,12 @@ TARGET_CIRCUIT_DIR=$CIRCUITS_DIR/testdata/Block_$NTXS"_"$BALANCELEVELS"_"$ORDERL
 PROVER_DIR=$DIR/prover-cluster
 EXCHANGE_DIR=$DIR/dingir-exchange
 
+# TODO: kill tick.ts
+pkill matchengine
+pkill rollup_state_manager
+pkill coordinator
+pkill prover
+
 # make sure submodule is correctly cloned!!
 git submodule update --init --recursive
 if [ -z ${CI+x} ]; then git pull --recurse-submodules; fi
@@ -42,6 +48,8 @@ witgen:
     block: "%s/circuit.fast"
 ' $PORT $DB_URL $TARGET_CIRCUIT_DIR > $PROVER_DIR/config/coordinator.yaml
 
+# TODO: send different tasks to different tmux windows 
+
 docker-compose --file $EXCHANGE_DIR/docker/docker-compose.yaml down
 sudo rm $EXCHANGE_DIR/docker/data -rf
 docker-compose --file $EXCHANGE_DIR/docker/docker-compose.yaml up --force-recreate --detach
@@ -62,4 +70,5 @@ npm i
 nohup npx ts-node tick.ts >> $EXCHANGE_DIR/tick.log 2>&1 &
 
 cd $PROVER_DIR
-cargo run --bin coordinator
+cargo build --release
+nohup $PROVER_DIR/target/release/coordinator >> $PROVER_DIR/coordinator.log 2>&1 &
