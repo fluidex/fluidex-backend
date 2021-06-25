@@ -3,14 +3,6 @@ set -uex
 
 # assume already install: libgmp-dev nasm nlohmann-json3-dev snarkit plonkit
 
-# kill last time running tasks:
-kill $(ps aux | grep 'demo_utils' | awk '{print $2}')
-# tick.ts
-# matchengine
-# rollup_state_manager
-# coordinator
-# prover
-
 # TODO: detect file and skip
 
 export NTXS=2;
