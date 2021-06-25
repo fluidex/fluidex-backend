@@ -51,15 +51,15 @@ docker-compose --file $PROVER_DIR/docker/docker-compose.yaml --project-name clus
 
 cd $EXCHANGE_DIR
 cargo build --bin matchengine
-nohup $EXCHANGE_DIR/target/debug/matchengine &
+nohup $EXCHANGE_DIR/target/debug/matchengine >> $EXCHANGE_DIR/matchengine.log 2>&1 &
 
 cd $STATE_MNGR_DIR
 cargo build --release --bin rollup_state_manager
-nohup $STATE_MNGR_DIR/target/release/rollup_state_manager &
+nohup $STATE_MNGR_DIR/target/release/rollup_state_manager >> $STATE_MNGR_DIR/rollup_state_manager.log 2>&1 &
 
 cd $EXCHANGE_DIR/examples/js/
 npm i
-nohup npx ts-node tick.ts &
+nohup npx ts-node tick.ts >> $EXCHANGE_DIR/tick.log 2>&1 &
 
 cd $PROVER_DIR
 cargo run --bin coordinator
