@@ -1,6 +1,8 @@
 #!/bin/bash
 set -uex
 
+# assume already install: libgmp-dev nasm nlohmann-json3-dev snarkit plonkit
+
 # TODO: detect file and skip
 
 export NTXS=2;
@@ -34,19 +36,32 @@ cd $CIRCUITS_DIR
 npm i
 # TODO: detect and install snarkit
 snarkit compile $TARGET_CIRCUIT_DIR --force_recompile --backend=native
+plonkit setup --power 20 --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key
+plonkit dump-lagrange -c $TARGET_CIRCUIT_DIR/circuit.r1cs --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key --srs_lagrange_form $TARGET_CIRCUIT_DIR/lag.key
+plonkit export-verification-key -c $TARGET_CIRCUIT_DIR/circuit.r1cs --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key
 
 cd $PROVER_DIR
 
 PORT=50055
-export DB_URL=postgres://coordinator:coordinator_AA9944@127.0.0.1:5433/prover_cluster
 printf 'port: %d
-db: "%s"
+db: postgres://coordinator:coordinator_AA9944@127.0.0.1:5433/prover_cluster
 witgen:
   interval: 10000
   n_workers: 5
   circuits:
     block: "%s/circuit.fast"
-' $PORT $DB_URL $TARGET_CIRCUIT_DIR > $PROVER_DIR/config/coordinator.yaml
+' $PORT $TARGET_CIRCUIT_DIR > $PROVER_DIR/config/coordinator.yaml
+
+printf '
+prover_id: 1
+upstream: "http://[::1]:50055"
+poll_interval: 10000
+circuit: "block"
+r1cs: "%s/circuit.r1cs"
+srs_monomial_form: "%s/mon.key"
+srs_lagrange_form: "%s/lag.key"
+vk: "%s/vk.bin"
+' $TARGET_CIRCUIT_DIR $TARGET_CIRCUIT_DIR $TARGET_CIRCUIT_DIR $TARGET_CIRCUIT_DIR > $PROVER_DIR/config/client.yaml
 
 # TODO: send different tasks to different tmux windows 
 
@@ -72,3 +87,4 @@ nohup npx ts-node tick.ts >> $EXCHANGE_DIR/tick.log 2>&1 &
 cd $PROVER_DIR
 cargo build --release
 nohup $PROVER_DIR/target/release/coordinator >> $PROVER_DIR/coordinator.log 2>&1 &
+$PROVER_DIR/target/release/prover
