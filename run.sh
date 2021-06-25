@@ -18,11 +18,12 @@ TARGET_CIRCUIT_DIR=$CIRCUITS_DIR/testdata/Block_$NTXS"_"$BALANCELEVELS"_"$ORDERL
 PROVER_DIR=$DIR/prover-cluster
 EXCHANGE_DIR=$DIR/dingir-exchange
 
-# TODO: kill tick.ts
-pkill matchengine
-pkill rollup_state_manager
-pkill coordinator
-pkill prover
+# TODO: kill last time running tasks:
+# tick.ts
+# matchengine
+# rollup_state_manager
+# coordinator
+# prover
 
 # make sure submodule is correctly cloned!!
 git submodule update --init --recursive
@@ -38,7 +39,7 @@ npm i
 snarkit compile $TARGET_CIRCUIT_DIR --force_recompile --backend=native
 plonkit setup --power 20 --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key
 plonkit dump-lagrange -c $TARGET_CIRCUIT_DIR/circuit.r1cs --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key --srs_lagrange_form $TARGET_CIRCUIT_DIR/lag.key
-plonkit export-verification-key -c $TARGET_CIRCUIT_DIR/circuit.r1cs --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key
+plonkit export-verification-key -c $TARGET_CIRCUIT_DIR/circuit.r1cs --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key -v $TARGET_CIRCUIT_DIR/vk.bin
 
 cd $PROVER_DIR
 
