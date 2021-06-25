@@ -42,6 +42,7 @@ witgen:
     block: "%s/circuit.fast"
 ' $PORT $DB_URL $TARGET_CIRCUIT_DIR > $PROVER_DIR/config/coordinator.yaml
 
-docker-compose --file $EXCHANGE_DIR/docker/docker-compose.yaml --project-name exchange up --force-recreate --detach
+# docker-compose --file $EXCHANGE_DIR/docker/docker-compose.yaml --project-name exchange up --force-recreate --detach
+docker-compose --file $EXCHANGE_DIR/docker/docker-compose.yaml up --force-recreate --detach
 docker-compose --file $PROVER_DIR/docker/docker-compose.yaml --project-name cluster up --force-recreate --detach
 
