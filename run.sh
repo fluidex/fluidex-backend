@@ -42,7 +42,24 @@ witgen:
     block: "%s/circuit.fast"
 ' $PORT $DB_URL $TARGET_CIRCUIT_DIR > $PROVER_DIR/config/coordinator.yaml
 
-# docker-compose --file $EXCHANGE_DIR/docker/docker-compose.yaml --project-name exchange up --force-recreate --detach
+docker-compose --file $EXCHANGE_DIR/docker/docker-compose.yaml down
+sudo rm $EXCHANGE_DIR/docker/data -rf
 docker-compose --file $EXCHANGE_DIR/docker/docker-compose.yaml up --force-recreate --detach
+docker-compose --file $PROVER_DIR/docker/docker-compose.yaml --project-name cluster down
+sudo rm $PROVER_DIR/docker/data -rf
 docker-compose --file $PROVER_DIR/docker/docker-compose.yaml --project-name cluster up --force-recreate --detach
 
+cd $EXCHANGE_DIR
+cargo build --bin matchengine
+nohup $EXCHANGE_DIR/target/debug/matchengine &
+
+cd $STATE_MNGR_DIR
+cargo build --release --bin rollup_state_manager
+nohup $STATE_MNGR_DIR/target/release/rollup_state_manager &
+
+cd $EXCHANGE_DIR/examples/js/
+npm i
+nohup npx ts-node tick.ts &
+
+cd $PROVER_DIR
+cargo run --bin coordinator
