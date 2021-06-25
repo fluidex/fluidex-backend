@@ -3,6 +3,14 @@ set -uex
 
 # assume already install: libgmp-dev nasm nlohmann-json3-dev snarkit plonkit
 
+# kill last time running tasks:
+kill $(ps aux | grep 'demo_utils' | awk '{print $2}')
+# tick.ts
+# matchengine
+# rollup_state_manager
+# coordinator
+# prover
+
 # TODO: detect file and skip
 
 export NTXS=2;
@@ -17,13 +25,6 @@ CIRCUITS_DIR=$STATE_MNGR_DIR/circuits
 TARGET_CIRCUIT_DIR=$CIRCUITS_DIR/testdata/Block_$NTXS"_"$BALANCELEVELS"_"$ORDERLEVELS"_"$ACCOUNTLEVELS
 PROVER_DIR=$DIR/prover-cluster
 EXCHANGE_DIR=$DIR/dingir-exchange
-
-# TODO: kill last time running tasks:
-# tick.ts
-# matchengine
-# rollup_state_manager
-# coordinator
-# prover
 
 # make sure submodule is correctly cloned!!
 git submodule update --init --recursive
