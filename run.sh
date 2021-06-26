@@ -43,23 +43,22 @@ function config_prover_cluster() {
 
   PORT=50055
   printf 'port: %d
-  db: postgres://coordinator:coordinator_AA9944@127.0.0.1:5433/prover_cluster
-  witgen:
-    interval: 10000
-    n_workers: 5
-    circuits:
-      block: "%s/circuit.fast"
+db: "postgres://coordinator:coordinator_AA9944@127.0.0.1:5433/prover_cluster"
+witgen:
+  interval: 10000
+  n_workers: 5
+  circuits:
+    block: "%s/circuit.fast"
   ' $PORT $TARGET_CIRCUIT_DIR > $PROVER_DIR/config/coordinator.yaml
 
-  printf '
-  prover_id: 1
-  upstream: "http://[::1]:50055"
-  poll_interval: 10000
-  circuit: "block"
-  r1cs: "%s/circuit.r1cs"
-  srs_monomial_form: "%s/mon.key"
-  srs_lagrange_form: "%s/lag.key"
-  vk: "%s/vk.bin"
+  printf 'prover_id: 1
+upstream: "http://[::1]:50055"
+poll_interval: 10000
+circuit: "block"
+r1cs: "%s/circuit.r1cs"
+srs_monomial_form: "%s/mon.key"
+srs_lagrange_form: "%s/lag.key"
+vk: "%s/vk.bin"
   ' $TARGET_CIRCUIT_DIR $TARGET_CIRCUIT_DIR $TARGET_CIRCUIT_DIR $TARGET_CIRCUIT_DIR > $PROVER_DIR/config/client.yaml
 }
 
