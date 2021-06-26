@@ -92,6 +92,7 @@ function run_bin() {
   npm i
   nohup npx ts-node tick.ts >> $EXCHANGE_DIR/tick.log 2>&1 &
 
+  cd $PROVER_DIR # need to switch into PROVER_DIR to use .env
   nohup $PROVER_DIR/target/release/client >> $PROVER_DIR/client.log 2>&1 &
 }
 
