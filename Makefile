@@ -5,5 +5,5 @@ prover_db:
 prover_status:
 	psql $(PROVER_DB) -c 'select status, count(*) from task group by status;'
 
-fmt_sh:
-	shfmt -w run.sh
+shfmt:
+	shfmt -i 2 -sr -w run.sh

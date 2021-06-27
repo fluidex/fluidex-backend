@@ -5,13 +5,11 @@ set -uex
 
 # TODO: detect file and skip
 
-export NTXS=2;
-export BALANCELEVELS=3;
-export ORDERLEVELS=4;
-export ACCOUNTLEVELS=4;
-export VERBOSE=false;
+source ./envs/small
+export VERBOSE=false
+export RUST_BACKTRACE=full
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)"
 STATE_MNGR_DIR=$DIR/rollup-state-manager
 CIRCUITS_DIR=$STATE_MNGR_DIR/circuits
 TARGET_CIRCUIT_DIR=$CIRCUITS_DIR/testdata/Block_$NTXS"_"$BALANCELEVELS"_"$ORDERLEVELS"_"$ACCOUNTLEVELS
@@ -31,7 +29,7 @@ function prepare_circuit() {
   cd $CIRCUITS_DIR
   npm i
   # TODO: detect and install snarkit
-  snarkit compile $TARGET_CIRCUIT_DIR --force_recompile --backend=native
+  snarkit compile $TARGET_CIRCUIT_DIR --verbose --backend=native 2>&1 | tee /tmp/snarkit.log
 
   plonkit setup --power 20 --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key
   plonkit dump-lagrange -c $TARGET_CIRCUIT_DIR/circuit.r1cs --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key --srs_lagrange_form $TARGET_CIRCUIT_DIR/lag.key
@@ -62,15 +60,20 @@ vk: "%s/vk.bin"
   ' $TARGET_CIRCUIT_DIR $TARGET_CIRCUIT_DIR $TARGET_CIRCUIT_DIR $TARGET_CIRCUIT_DIR > $PROVER_DIR/config/client.yaml
 }
 
-# TODO: send different tasks to different tmux windows 
+# TODO: send different tasks to different tmux windows
+
+function restart_docker_compose() {
+  dir=$1
+  name=$2
+  docker-compose --file $dir/docker/docker-compose.yaml --project-name $name down
+  sudo rm $dir/docker/data -rf
+  docker-compose --file $dir/docker/docker-compose.yaml --project-name $name up --force-recreate --detach
+}
 
 function run_docker_compose() {
-  docker-compose --file $EXCHANGE_DIR/docker/docker-compose.yaml down
-  sudo rm $EXCHANGE_DIR/docker/data -rf
-  docker-compose --file $EXCHANGE_DIR/docker/docker-compose.yaml up --force-recreate --detach
-  docker-compose --file $PROVER_DIR/docker/docker-compose.yaml --project-name cluster down
-  sudo rm $PROVER_DIR/docker/data -rf
-  docker-compose --file $PROVER_DIR/docker/docker-compose.yaml --project-name cluster up --force-recreate --detach
+  restart_docker_compose $EXCHANGE_DIR docker
+  restart_docker_compose $PROVER_DIR cluster
+  restart_docker_compose $STATE_MNGR_DIR rollup
 }
 
 function run_bin() {
@@ -85,6 +88,7 @@ function run_bin() {
 
   cd $STATE_MNGR_DIR
   cargo build --release --bin rollup_state_manager
+  sqlx migrate run
   nohup $STATE_MNGR_DIR/target/release/rollup_state_manager >> $STATE_MNGR_DIR/rollup_state_manager.log 2>&1 &
 
   cd $EXCHANGE_DIR/examples/js/
