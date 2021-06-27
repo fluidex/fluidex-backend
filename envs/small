@@ -1,0 +1,4 @@
+export NTXS=2
+export BALANCELEVELS=5
+export ORDERLEVELS=10
+export ACCOUNTLEVELS=5
