@@ -76,31 +76,50 @@ function run_docker_compose() {
   restart_docker_compose $STATE_MNGR_DIR rollup
 }
 
-function run_bin() {
+function run_matchengine() {
   cd $EXCHANGE_DIR
   cargo build --bin matchengine
   nohup $EXCHANGE_DIR/target/debug/matchengine >> $EXCHANGE_DIR/matchengine.log 2>&1 &
+}
 
-  # run coordinator because we need to init db
-  cd $PROVER_DIR
-  cargo build --release
-  nohup $PROVER_DIR/target/release/coordinator >> $PROVER_DIR/coordinator.log 2>&1 &
+function run_ticker() {
+  cd $EXCHANGE_DIR/examples/js/
+  npm i
+  nohup npx ts-node tick.ts >> $EXCHANGE_DIR/tick.log 2>&1 &
+}
 
+function run_rollup() {
   cd $STATE_MNGR_DIR
   cargo build --release --bin rollup_state_manager
   sqlx migrate run
   nohup $STATE_MNGR_DIR/target/release/rollup_state_manager >> $STATE_MNGR_DIR/rollup_state_manager.log 2>&1 &
+}
 
-  cd $EXCHANGE_DIR/examples/js/
-  npm i
-  nohup npx ts-node tick.ts >> $EXCHANGE_DIR/tick.log 2>&1 &
-
+function run_prove_master() {
+  # run coordinator because we need to init db
+  cd $PROVER_DIR
+  cargo build --release
+  nohup $PROVER_DIR/target/release/coordinator >> $PROVER_DIR/coordinator.log 2>&1 &
+}
+function run_prove_workers() {
   cd $PROVER_DIR # need to switch into PROVER_DIR to use .env
   nohup $PROVER_DIR/target/release/client >> $PROVER_DIR/client.log 2>&1 &
 }
 
-handle_submodule
-prepare_circuit
-config_prover_cluster
-run_docker_compose
-run_bin
+function run_bin() {
+  run_matchengine
+  run_ticker
+  run_rollup
+  run_prove_master
+  run_prove_workers
+}
+
+function main() {
+  handle_submodule
+  prepare_circuit
+  config_prover_cluster
+  run_docker_compose
+  run_bin
+}
+
+main
