@@ -16,6 +16,8 @@ TARGET_CIRCUIT_DIR=$CIRCUITS_DIR/testdata/Block_$NTXS"_"$BALANCELEVELS"_"$ORDERL
 PROVER_DIR=$DIR/prover-cluster
 EXCHANGE_DIR=$DIR/dingir-exchange
 
+SNARKIT_BACKEND=$([ `uname -m` = "arm64" ] && echo "wasm" || echo "native")
+
 function handle_submodule() {
   git submodule update --init --recursive
   if [ -z ${CI+x} ]; then git pull --recurse-submodules; fi
@@ -29,7 +31,7 @@ function prepare_circuit() {
   cd $CIRCUITS_DIR
   npm i
   # TODO: detect and install snarkit
-  snarkit compile $TARGET_CIRCUIT_DIR --verbose --backend=native 2>&1 | tee /tmp/snarkit.log
+  snarkit compile $TARGET_CIRCUIT_DIR --verbose --backend=$SHARKIT_BACKEND 2>&1 | tee /tmp/snarkit.log
 
   plonkit setup --power 20 --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key
   plonkit dump-lagrange -c $TARGET_CIRCUIT_DIR/circuit.r1cs --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key --srs_lagrange_form $TARGET_CIRCUIT_DIR/lag.key
