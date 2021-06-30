@@ -39,25 +39,8 @@ function prepare_circuit() {
 function config_prover_cluster() {
   cd $PROVER_DIR
 
-  PORT=50055
-  printf 'port: %d
-db: "postgres://coordinator:coordinator_AA9944@127.0.0.1:5433/prover_cluster"
-witgen:
-  interval: 10000
-  n_workers: 5
-  circuits:
-    block: "%s/circuit.fast"
-  ' $PORT $TARGET_CIRCUIT_DIR > $PROVER_DIR/config/coordinator.yaml
-
-  printf 'prover_id: 1
-upstream: "http://[::1]:50055"
-poll_interval: 10000
-circuit: "block"
-r1cs: "%s/circuit.r1cs"
-srs_monomial_form: "%s/mon.key"
-srs_lagrange_form: "%s/lag.key"
-vk: "%s/vk.bin"
-  ' $TARGET_CIRCUIT_DIR $TARGET_CIRCUIT_DIR $TARGET_CIRCUIT_DIR $TARGET_CIRCUIT_DIR > $PROVER_DIR/config/client.yaml
+  PORT=50055 TARGET_CIRCUIT_DIR=$TARGET_CIRCUIT_DIR envsubst < $PROVER_DIR/config/coordinator.yaml.template > $PROVER_DIR/config/coordinator.yaml
+  TARGET_CIRCUIT_DIR=$TARGET_CIRCUIT_DIR envsubst < $PROVER_DIR/config/client.yaml.template > $PROVER_DIR/config/client.yaml
 }
 
 # TODO: send different tasks to different tmux windows
@@ -91,7 +74,7 @@ function run_ticker() {
 function run_rollup() {
   cd $STATE_MNGR_DIR
   cargo build --release --bin rollup_state_manager
-  sqlx migrate run
+  DATABASE_URL=postgres://postgres:postgres_AA9944@127.0.0.1:5434/rollup_state_manager sqlx migrate run
   nohup $STATE_MNGR_DIR/target/release/rollup_state_manager >> $STATE_MNGR_DIR/rollup_state_manager.log 2>&1 &
 }
 
@@ -109,9 +92,9 @@ function run_prove_workers() {
 function run_bin() {
   run_matchengine
   run_ticker
-  run_rollup
   run_prove_master
   run_prove_workers
+  run_rollup
 }
 
 function main() {
@@ -121,5 +104,4 @@ function main() {
   run_docker_compose
   run_bin
 }
-
 main
