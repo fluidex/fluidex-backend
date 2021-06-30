@@ -16,6 +16,7 @@ TARGET_CIRCUIT_DIR=$CIRCUITS_DIR/testdata/Block_$NTXS"_"$BALANCELEVELS"_"$ORDERL
 PROVER_DIR=$DIR/prover-cluster
 EXCHANGE_DIR=$DIR/dingir-exchange
 
+OS="`uname -s`"
 SNARKIT_BACKEND=$([ `uname -m` = "arm64" ] && echo "wasm" || echo "native")
 
 function handle_submodule() {
@@ -31,7 +32,7 @@ function prepare_circuit() {
   cd $CIRCUITS_DIR
   npm i
   # TODO: detect and install snarkit
-  snarkit compile $TARGET_CIRCUIT_DIR --verbose --backend="$SHARKIT_BACKEND" 2>&1 | tee /tmp/snarkit.log
+  snarkit compile $TARGET_CIRCUIT_DIR --verbose --backend="$SNARKIT_BACKEND" 2>&1 | tee /tmp/snarkit.log
 
   plonkit setup --power 20 --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key
   plonkit dump-lagrange -c $TARGET_CIRCUIT_DIR/circuit.r1cs --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key --srs_lagrange_form $TARGET_CIRCUIT_DIR/lag.key
@@ -51,7 +52,11 @@ function restart_docker_compose() {
   dir=$1
   name=$2
   docker-compose --file $dir/docker/docker-compose.yaml --project-name $name down
-  sudo rm -rf $dir/docker/data
+  if [ $OS = "Darwin" ]; then
+    rm -rf $dir/docker/data
+  else
+    sudo rm -rf $dir/docker/data
+  fi
   docker-compose --file $dir/docker/docker-compose.yaml --project-name $name up --force-recreate --detach
 }
 
