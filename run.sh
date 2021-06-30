@@ -22,7 +22,7 @@ function handle_submodule() {
 }
 
 function prepare_circuit() {
-  rm $TARGET_CIRCUIT_DIR -rf
+  rm -rf $TARGET_CIRCUIT_DIR
   cd $STATE_MNGR_DIR
   cargo run --bin gen_export_circuit_testcase
 
@@ -49,7 +49,7 @@ function restart_docker_compose() {
   dir=$1
   name=$2
   docker-compose --file $dir/docker/docker-compose.yaml --project-name $name down
-  sudo rm $dir/docker/data -rf
+  sudo rm -rf $dir/docker/data
   docker-compose --file $dir/docker/docker-compose.yaml --project-name $name up --force-recreate --detach
 }
 
