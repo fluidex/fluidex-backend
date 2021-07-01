@@ -58,7 +58,7 @@ function run_docker_compose() {
   restart_docker_compose $EXCHANGE_DIR docker
   restart_docker_compose $PROVER_DIR cluster
   restart_docker_compose $STATE_MNGR_DIR rollup
-  restart_docker_compose $HEIMDALLR_DIR heimdallr_faucet
+  restart_docker_compose $HEIMDALLR_DIR heimdallr
 }
 
 function run_matchengine() {
