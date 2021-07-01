@@ -15,6 +15,7 @@ CIRCUITS_DIR=$STATE_MNGR_DIR/circuits
 TARGET_CIRCUIT_DIR=$CIRCUITS_DIR/testdata/Block_$NTXS"_"$BALANCELEVELS"_"$ORDERLEVELS"_"$ACCOUNTLEVELS
 PROVER_DIR=$DIR/prover-cluster
 EXCHANGE_DIR=$DIR/dingir-exchange
+HEIMDALLR_DIR=$DIR/Heimdallr
 
 function handle_submodule() {
   git submodule update --init --recursive
@@ -57,6 +58,7 @@ function run_docker_compose() {
   restart_docker_compose $EXCHANGE_DIR docker
   restart_docker_compose $PROVER_DIR cluster
   restart_docker_compose $STATE_MNGR_DIR rollup
+  restart_docker_compose $HEIMDALLR_DIR heimdallr
 }
 
 function run_matchengine() {
@@ -85,9 +87,19 @@ function run_prove_master() {
   cargo build --release
   nohup $PROVER_DIR/target/release/coordinator >> $PROVER_DIR/coordinator.log 2>&1 &
 }
+
 function run_prove_workers() {
   cd $PROVER_DIR # need to switch into PROVER_DIR to use .env
+  if [ ! -f $PROVER_DIR/target/release/client ]; then
+      cargo build --release
+  fi
   nohup $PROVER_DIR/target/release/client >> $PROVER_DIR/client.log 2>&1 &
+}
+
+function run_faucet() {
+  cd $HEIMDALLR_DIR
+  cargo build --release --bin faucet
+  nohup $HEIMDALLR_DIR/target/release/faucet >> $HEIMDALLR_DIR/faucet.log 2>&1 &
 }
 
 function run_bin() {
@@ -96,6 +108,7 @@ function run_bin() {
   run_prove_master
   run_prove_workers
   run_rollup
+  run_faucet
 }
 
 function main() {
