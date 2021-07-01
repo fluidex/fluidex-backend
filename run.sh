@@ -61,8 +61,9 @@ function run_docker_compose() {
 
 function run_matchengine() {
   cd $EXCHANGE_DIR
-  cargo build --bin matchengine
-  nohup $EXCHANGE_DIR/target/debug/matchengine >> $EXCHANGE_DIR/matchengine.log 2>&1 &
+  make startall
+  #cargo build --bin matchengine
+  #nohup $EXCHANGE_DIR/target/debug/matchengine >> $EXCHANGE_DIR/matchengine.log 2>&1 &
 }
 
 function run_ticker() {
