@@ -13,7 +13,7 @@ prover_status:
 	psql $(PROVER_DB) -c "select status, count(*) from task group by status UNION ALL SELECT null status, COUNT(status) from task"
 
 shfmt:
-	shfmt -i 2 -sr -w run.sh
+	shfmt -i 2 -sr -w *.sh
 
 list:
 	ps aux|grep demo_utils|grep -v grep || true
