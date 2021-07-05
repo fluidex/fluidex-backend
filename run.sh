@@ -15,6 +15,7 @@ CIRCUITS_DIR=$STATE_MNGR_DIR/circuits
 TARGET_CIRCUIT_DIR=$CIRCUITS_DIR/testdata/Block_$NTXS"_"$BALANCELEVELS"_"$ORDERLEVELS"_"$ACCOUNTLEVELS
 PROVER_DIR=$DIR/prover-cluster
 EXCHANGE_DIR=$DIR/dingir-exchange
+FAUCET_DIR=$DIR/regnbue-bridge
 
 OS="`uname -s`"
 SNARKIT_BACKEND=$([ `uname -m` = "arm64" ] && echo "wasm" || echo "native")
@@ -51,7 +52,8 @@ function config_prover_cluster() {
 function restart_docker_compose() {
   dir=$1
   name=$2
-  docker-compose --file $dir/docker/docker-compose.yaml --project-name $name down
+  docker-compose --file $dir/docker/docker-compose.yaml --project-name $name down --remove-orphans
+  sudo rm $dir/docker/data -rf
   if [ $OS = "Darwin" ]; then
     rm -rf $dir/docker/data
   else
@@ -61,15 +63,17 @@ function restart_docker_compose() {
 }
 
 function run_docker_compose() {
-  restart_docker_compose $EXCHANGE_DIR docker
-  restart_docker_compose $PROVER_DIR cluster
+  restart_docker_compose $EXCHANGE_DIR exchange
+  restart_docker_compose $PROVER_DIR prover
   restart_docker_compose $STATE_MNGR_DIR rollup
+  restart_docker_compose $FAUCET_DIR faucet
 }
 
 function run_matchengine() {
   cd $EXCHANGE_DIR
-  cargo build --bin matchengine
-  nohup $EXCHANGE_DIR/target/debug/matchengine >> $EXCHANGE_DIR/matchengine.log 2>&1 &
+  make startall
+  #cargo build --bin matchengine
+  #nohup $EXCHANGE_DIR/target/debug/matchengine >> $EXCHANGE_DIR/matchengine.log 2>&1 &
 }
 
 function run_ticker() {
@@ -91,9 +95,21 @@ function run_prove_master() {
   cargo build --release
   nohup $PROVER_DIR/target/release/coordinator >> $PROVER_DIR/coordinator.log 2>&1 &
 }
+
 function run_prove_workers() {
   cd $PROVER_DIR # need to switch into PROVER_DIR to use .env
+  if [ ! -f $PROVER_DIR/target/release/client ]; then
+    cargo build --release
+  fi
   nohup $PROVER_DIR/target/release/client >> $PROVER_DIR/client.log 2>&1 &
+  sleep 1
+  cpulimit -P $PROVER_DIR/target/release/client -l $((50 * $(nproc))) -b -z # -q
+}
+
+function run_faucet() {
+  cd $FAUCET_DIR
+  cargo build --release --bin faucet
+  nohup "$FAUCET_DIR/target/release/faucet" >> $FAUCET_DIR/faucet.log 2>&1 &
 }
 
 function run_bin() {
@@ -102,13 +118,18 @@ function run_bin() {
   run_prove_master
   run_prove_workers
   run_rollup
+  run_faucet
 }
 
-function main() {
+function setup() {
   handle_submodule
   prepare_circuit
   config_prover_cluster
+}
+
+function run_all() {
   run_docker_compose
   run_bin
 }
-main
+setup
+run_all

@@ -7,3 +7,6 @@
 [submodule "dingir-exchange"]
 	path = dingir-exchange
 	url = git@github.com:Fluidex/dingir-exchange.git
+[submodule "regnbue-bridge"]
+	path = regnbue-bridge
+	url = git@github.com:Fluidex/regnbue-bridge.git
