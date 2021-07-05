@@ -9,7 +9,7 @@ FAUCET_DIR=$DIR/
 
 function kill_tasks() {
   # kill last time running tasks:
-  kill -9 $(ps aux | grep 'fluidex-backend' | grep -v grep | awk '{print $2}')
+  kill -9 $(ps aux | grep 'fluidex-backend' | grep -v grep | awk '{print $2}') || true
   # tick.ts
   # matchengine
   # rollup_state_manager
