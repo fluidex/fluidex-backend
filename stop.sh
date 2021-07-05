@@ -5,12 +5,11 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)"
 EXCHANGE_DIR=$DIR/dingir-exchange
 PROVER_DIR=$DIR/prover-cluster
 STATE_MNGR_DIR=$DIR/rollup-state-manager
-HEIMDALLR_DIR=$DIR/Heimdallr
+FAUCET_DIR=$DIR/
 
 function kill_tasks() {
 	# kill last time running tasks:
-	#kill $(ps aux | grep 'demo_utils' | grep -v grep | awk '{print $2}')
-	kill -9 $(ps aux | grep 'demo_utils' | grep -v grep | awk '{print $2}')
+	kill -9 $(ps aux | grep 'fluidex-backend' | grep -v grep | awk '{print $2}')
 	# tick.ts
 	# matchengine
 	# rollup_state_manager
@@ -26,10 +25,10 @@ function stop_docker_compose() {
 }
 
 function stop_docker_composes() {
-  stop_docker_compose $EXCHANGE_DIR docker
-  stop_docker_compose $PROVER_DIR cluster
+  stop_docker_compose $EXCHANGE_DIR exchange
+  stop_docker_compose $PROVER_DIR prover
   stop_docker_compose $STATE_MNGR_DIR rollup
-  stop_docker_compose $HEIMDALLR_DIR heimdallr
+  stop_docker_compose $FAUCET_DIR faucet
 }
 
 function main() {

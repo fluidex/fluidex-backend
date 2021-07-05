@@ -15,7 +15,7 @@ CIRCUITS_DIR=$STATE_MNGR_DIR/circuits
 TARGET_CIRCUIT_DIR=$CIRCUITS_DIR/testdata/Block_$NTXS"_"$BALANCELEVELS"_"$ORDERLEVELS"_"$ACCOUNTLEVELS
 PROVER_DIR=$DIR/prover-cluster
 EXCHANGE_DIR=$DIR/dingir-exchange
-HEIMDALLR_DIR=$DIR/Heimdallr
+FAUCET_DIR=$DIR/regnbue-bridge
 
 function handle_submodule() {
   git submodule update --init --recursive
@@ -58,7 +58,7 @@ function run_docker_compose() {
   restart_docker_compose $EXCHANGE_DIR exchange
   restart_docker_compose $PROVER_DIR prover
   restart_docker_compose $STATE_MNGR_DIR rollup
-  restart_docker_compose $HEIMDALLR_DIR heimdallr
+  restart_docker_compose $FAUCET_DIR faucet
 }
 
 function run_matchengine() {
@@ -99,9 +99,9 @@ function run_prove_workers() {
 }
 
 function run_faucet() {
-  cd $HEIMDALLR_DIR
+  cd $FAUCET_DIR
   cargo build --release --bin faucet
-  nohup "$HEIMDALLR_DIR/target/release/faucet" >> $HEIMDALLR_DIR/faucet.log 2>&1 &
+  nohup "$FAUCET_DIR/target/release/faucet" >> $FAUCET_DIR/faucet.log 2>&1 &
 }
 
 function run_bin() {

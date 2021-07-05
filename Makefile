@@ -16,7 +16,7 @@ shfmt:
 	shfmt -i 2 -sr -w *.sh
 
 list:
-	ps aux|grep demo_utils|grep -v grep || true
+	ps aux|grep fluidex-backend|grep -v grep || true
 new_trades:
 	psql $(EXCHANGE_DB) -c 'select * from market_trade order by time desc limit 10;'
 
