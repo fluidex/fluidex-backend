@@ -8,13 +8,13 @@ STATE_MNGR_DIR=$DIR/rollup-state-manager
 FAUCET_DIR=$DIR/
 
 function kill_tasks() {
-	# kill last time running tasks:
-	kill -9 $(ps aux | grep 'fluidex-backend' | grep -v grep | awk '{print $2}')
-	# tick.ts
-	# matchengine
-	# rollup_state_manager
-	# coordinator
-	# prover
+  # kill last time running tasks:
+  kill -9 $(ps aux | grep 'fluidex-backend' | grep -v grep | awk '{print $2}')
+  # tick.ts
+  # matchengine
+  # rollup_state_manager
+  # coordinator
+  # prover
 }
 
 function stop_docker_compose() {
@@ -32,7 +32,7 @@ function stop_docker_composes() {
 }
 
 function main() {
-	kill_tasks
-	stop_docker_composes
+  kill_tasks
+  stop_docker_composes
 }
 main
