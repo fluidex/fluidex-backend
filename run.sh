@@ -83,7 +83,14 @@ function run_ticker() {
 function run_rollup() {
   cd $STATE_MNGR_DIR
   cargo build --release --bin rollup_state_manager
-  DATABASE_URL=postgres://postgres:postgres_AA9944@127.0.0.1:5434/rollup_state_manager sqlx migrate run
+  export DATABASE_URL=postgres://postgres:postgres_AA9944@127.0.0.1:5434/rollup_state_manager 
+  set +e
+  sqlx migrate run
+  while [[ $? -ne 0 ]]; do
+    sleep 1
+    sqlx migrate run
+  done
+  set -e
   nohup $STATE_MNGR_DIR/target/release/rollup_state_manager >> $STATE_MNGR_DIR/rollup_state_manager.log 2>&1 &
 }
 
@@ -99,9 +106,13 @@ function run_prove_workers() {
   if [ ! -f $PROVER_DIR/target/release/client ]; then
     cargo build --release
   fi
-  nohup $PROVER_DIR/target/release/client >> $PROVER_DIR/client.log 2>&1 &
-  sleep 1
-  cpulimit -P $PROVER_DIR/target/release/client -l $((50 * $(nproc))) -b -z # -q
+  if [ $OS = "Darwin" ]; then
+    ( nice -n 20 nohup $PROVER_DIR/target/release/client >> $PROVER_DIR/client.log 2>&1 & )
+  else
+    nohup $PROVER_DIR/target/release/client >> $PROVER_DIR/client.log 2>&1 &
+    sleep 1
+    cpulimit -P $PROVER_DIR/target/release/client -l $((50 * $(nproc))) -b -z # -q
+  fi
 }
 
 function run_faucet() {
