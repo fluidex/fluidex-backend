@@ -52,7 +52,6 @@ function restart_docker_compose() {
   dir=$1
   name=$2
   docker-compose --file $dir/docker/docker-compose.yaml --project-name $name down --remove-orphans
-  sudo rm $dir/docker/data -rf
   if [ $OS = "Darwin" ]; then
     rm -rf $dir/docker/data
   else
