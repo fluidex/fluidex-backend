@@ -5,6 +5,7 @@ set -uex
 
 # TODO: detect file and skip
 
+source ./common.sh
 source ./envs/small
 export VERBOSE=false
 export RUST_BACKTRACE=full
@@ -17,7 +18,6 @@ PROVER_DIR=$DIR/prover-cluster
 EXCHANGE_DIR=$DIR/dingir-exchange
 FAUCET_DIR=$DIR/regnbue-bridge
 
-OS="`uname -s`"
 
 function handle_submodule() {
   git submodule update --init --recursive
@@ -52,11 +52,7 @@ function restart_docker_compose() {
   dir=$1
   name=$2
   docker-compose --file $dir/docker/docker-compose.yaml --project-name $name down --remove-orphans
-  if [ $OS = "Darwin" ]; then
-    rm -rf $dir/docker/data
-  else
-    sudo rm -rf $dir/docker/data
-  fi
+  docker_rm -rf $dir/docker/data
   docker-compose --file $dir/docker/docker-compose.yaml --project-name $name up --force-recreate --detach
 }
 
@@ -84,13 +80,7 @@ function run_rollup() {
   cd $STATE_MNGR_DIR
   cargo build --release --bin rollup_state_manager
   export DATABASE_URL=postgres://postgres:postgres_AA9944@127.0.0.1:5434/rollup_state_manager 
-  set +e
-  sqlx migrate run
-  while [[ $? -ne 0 ]]; do
-    sleep 1
-    sqlx migrate run
-  done
-  set -e
+  retry_cmd_until_ok sqlx migrate run
   nohup $STATE_MNGR_DIR/target/release/rollup_state_manager >> $STATE_MNGR_DIR/rollup_state_manager.log 2>&1 &
 }
 
