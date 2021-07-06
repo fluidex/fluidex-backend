@@ -4,6 +4,8 @@ Fludiex team is building the first permissionless layer2 orderbook DEX on Ethere
 
 This repo contains all the backend stuff, including exchange match engine,rollup state manager, prover cluster(master and workers), zk circuit codes.
 
+Currently it is only a demo/POC version, many features unimplmented. 
+
 # Components & Submodules
 
 Submodules:
@@ -24,7 +26,7 @@ Some zero knowledge development tools developed by Fludiex team are used to proc
 
 
 
-# How to start
+# How to run
 
 Ubuntu 20.04 is the only supported environment currently.   
 
@@ -55,5 +57,12 @@ $ make new_trades
 ```
 
 
+# Todos
 
+* Data availability. And make num of circuit public inputs to 1.
+* Use a real k8s proving cluster rather than the local single node prover
+* The rollup state persistence is not finished yet. It fetches txs from the beginning in this demo version.
 
+# Known Issues
+
+* Order signatures are not checked completely. Todo: user nonces and order ids should be signed.
