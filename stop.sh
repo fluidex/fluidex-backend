@@ -1,6 +1,8 @@
 #!/bin/bash
 set -uex
 
+source ./common.sh
+
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)"
 EXCHANGE_DIR=$DIR/dingir-exchange
 PROVER_DIR=$DIR/prover-cluster
@@ -21,7 +23,7 @@ function stop_docker_compose() {
   dir=$1
   name=$2
   docker-compose --file $dir/docker/docker-compose.yaml --project-name $name down
-  sudo rm $dir/docker/data -rf
+  docker_rm $dir/docker/data -rf
 }
 
 function stop_docker_composes() {

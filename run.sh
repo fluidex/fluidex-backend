@@ -5,6 +5,7 @@ set -uex
 
 # TODO: detect file and skip
 
+source ./common.sh
 source ./envs/small
 export VERBOSE=false
 export RUST_BACKTRACE=full
@@ -17,20 +18,21 @@ PROVER_DIR=$DIR/prover-cluster
 EXCHANGE_DIR=$DIR/dingir-exchange
 FAUCET_DIR=$DIR/regnbue-bridge
 
+
 function handle_submodule() {
   git submodule update --init --recursive
   if [ -z ${CI+x} ]; then git pull --recurse-submodules; fi
 }
 
 function prepare_circuit() {
-  rm $TARGET_CIRCUIT_DIR -rf
+  rm -rf $TARGET_CIRCUIT_DIR
   cd $STATE_MNGR_DIR
   cargo run --bin gen_export_circuit_testcase
 
   cd $CIRCUITS_DIR
   npm i
   # TODO: detect and install snarkit
-  snarkit compile $TARGET_CIRCUIT_DIR --verbose --backend=native 2>&1 | tee /tmp/snarkit.log
+  snarkit compile $TARGET_CIRCUIT_DIR --verbose --backend=auto 2>&1 | tee /tmp/snarkit.log
 
   plonkit setup --power 20 --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key
   plonkit dump-lagrange -c $TARGET_CIRCUIT_DIR/circuit.r1cs --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key --srs_lagrange_form $TARGET_CIRCUIT_DIR/lag.key
@@ -50,7 +52,7 @@ function restart_docker_compose() {
   dir=$1
   name=$2
   docker-compose --file $dir/docker/docker-compose.yaml --project-name $name down --remove-orphans
-  sudo rm $dir/docker/data -rf
+  docker_rm -rf $dir/docker/data
   docker-compose --file $dir/docker/docker-compose.yaml --project-name $name up --force-recreate --detach
 }
 
@@ -77,7 +79,8 @@ function run_ticker() {
 function run_rollup() {
   cd $STATE_MNGR_DIR
   cargo build --release --bin rollup_state_manager
-  DATABASE_URL=postgres://postgres:postgres_AA9944@127.0.0.1:5434/rollup_state_manager sqlx migrate run
+  export DATABASE_URL=postgres://postgres:postgres_AA9944@127.0.0.1:5434/rollup_state_manager 
+  retry_cmd_until_ok sqlx migrate run
   nohup $STATE_MNGR_DIR/target/release/rollup_state_manager >> $STATE_MNGR_DIR/rollup_state_manager.log 2>&1 &
 }
 
@@ -93,9 +96,13 @@ function run_prove_workers() {
   if [ ! -f $PROVER_DIR/target/release/client ]; then
     cargo build --release
   fi
-  nohup $PROVER_DIR/target/release/client >> $PROVER_DIR/client.log 2>&1 &
-  sleep 1
-  cpulimit -P $PROVER_DIR/target/release/client -l $((50 * $(nproc))) -b -z # -q
+  if [ $OS = "Darwin" ]; then
+    ( nice -n 20 nohup $PROVER_DIR/target/release/client >> $PROVER_DIR/client.log 2>&1 & )
+  else
+    nohup $PROVER_DIR/target/release/client >> $PROVER_DIR/client.log 2>&1 &
+    sleep 1
+    cpulimit -P $PROVER_DIR/target/release/client -l $((50 * $(nproc))) -b -z # -q
+  fi
 }
 
 function run_faucet() {
