@@ -23,7 +23,7 @@ function stop_docker_compose() {
   dir=$1
   name=$2
   docker-compose --file $dir/docker/docker-compose.yaml --project-name $name down
-  docker_rm $dir/docker/data -rf
+  docker_rm -rf $dir/docker/data
 }
 
 function stop_docker_composes() {
