@@ -33,8 +33,5 @@ function stop_docker_composes() {
   stop_docker_compose $FAUCET_DIR faucet
 }
 
-function main() {
-  kill_tasks
-  stop_docker_composes
-}
-main
+kill_tasks
+stop_docker_composes
