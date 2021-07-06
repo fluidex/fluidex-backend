@@ -40,7 +40,7 @@ function prepare_circuit() {
 function config_prover_cluster() {
   cd $PROVER_DIR
 
-  PORT=50055 TARGET_CIRCUIT_DIR=$TARGET_CIRCUIT_DIR envsubst < $PROVER_DIR/config/coordinator.yaml.template > $PROVER_DIR/config/coordinator.yaml
+  PORT=50055 WITGEN_INTERVAL=2500 TARGET_CIRCUIT_DIR=$TARGET_CIRCUIT_DIR envsubst < $PROVER_DIR/config/coordinator.yaml.template > $PROVER_DIR/config/coordinator.yaml
   TARGET_CIRCUIT_DIR=$TARGET_CIRCUIT_DIR envsubst < $PROVER_DIR/config/client.yaml.template > $PROVER_DIR/config/client.yaml
 }
 
