@@ -66,3 +66,4 @@ $ make new_trades
 # Known Issues
 
 * Order signatures are not checked completely. Todo: user nonces and order ids should be signed.
+* For convenience, PLONK is setup locally rather than by MPC. 
