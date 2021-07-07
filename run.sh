@@ -18,6 +18,7 @@ PROVER_DIR=$DIR/prover-cluster
 EXCHANGE_DIR=$DIR/dingir-exchange
 FAUCET_DIR=$DIR/regnbue-bridge
 
+CURRENTDATE=`date +"%Y-%m-%d"`
 
 function handle_submodule() {
   git submodule update --init --recursive
@@ -67,13 +68,13 @@ function run_matchengine() {
   cd $EXCHANGE_DIR
   make startall
   #cargo build --bin matchengine
-  #nohup $EXCHANGE_DIR/target/debug/matchengine >> $EXCHANGE_DIR/matchengine.log 2>&1 &
+  #nohup $EXCHANGE_DIR/target/debug/matchengine >> $EXCHANGE_DIR/matchengine.$CURRENTDATE.log 2>&1 &
 }
 
 function run_ticker() {
   cd $EXCHANGE_DIR/examples/js/
   npm i
-  nohup npx ts-node tick.ts >> $EXCHANGE_DIR/tick.log 2>&1 &
+  nohup npx ts-node tick.ts >> $EXCHANGE_DIR/tick.$CURRENTDATE.log 2>&1 &
 }
 
 function run_rollup() {
@@ -81,14 +82,14 @@ function run_rollup() {
   cargo build --release --bin rollup_state_manager
   export DATABASE_URL=postgres://postgres:postgres_AA9944@127.0.0.1:5434/rollup_state_manager 
   retry_cmd_until_ok sqlx migrate run
-  nohup $STATE_MNGR_DIR/target/release/rollup_state_manager >> $STATE_MNGR_DIR/rollup_state_manager.log 2>&1 &
+  nohup $STATE_MNGR_DIR/target/release/rollup_state_manager >> $STATE_MNGR_DIR/rollup_state_manager.$CURRENTDATE.log 2>&1 &
 }
 
 function run_prove_master() {
   # run coordinator because we need to init db
   cd $PROVER_DIR
   cargo build --release
-  nohup $PROVER_DIR/target/release/coordinator >> $PROVER_DIR/coordinator.log 2>&1 &
+  nohup $PROVER_DIR/target/release/coordinator >> $PROVER_DIR/coordinator.$CURRENTDATE.log 2>&1 &
 }
 
 function run_prove_workers() {
@@ -97,9 +98,9 @@ function run_prove_workers() {
     cargo build --release
   fi
   if [ $OS = "Darwin" ]; then
-    ( nice -n 20 nohup $PROVER_DIR/target/release/client >> $PROVER_DIR/client.log 2>&1 & )
+    ( nice -n 20 nohup $PROVER_DIR/target/release/client >> $PROVER_DIR/client.$CURRENTDATE.log 2>&1 & )
   else
-    nohup $PROVER_DIR/target/release/client >> $PROVER_DIR/client.log 2>&1 &
+    nohup $PROVER_DIR/target/release/client >> $PROVER_DIR/client.$CURRENTDATE.log 2>&1 &
     sleep 1
     cpulimit -P $PROVER_DIR/target/release/client -l $((50 * $(nproc))) -b -z # -q
   fi
@@ -108,7 +109,7 @@ function run_prove_workers() {
 function run_faucet() {
   cd $FAUCET_DIR
   cargo build --release --bin faucet
-  nohup "$FAUCET_DIR/target/release/faucet" >> $FAUCET_DIR/faucet.log 2>&1 &
+  nohup "$FAUCET_DIR/target/release/faucet" >> $FAUCET_DIR/faucet.$CURRENTDATE.log 2>&1 &
 }
 
 function run_bin() {
