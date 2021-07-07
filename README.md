@@ -4,7 +4,7 @@ Fludiex team is building the first permissionless layer2 orderbook DEX on Ethere
 
 This repo contains all the backend stuff, including exchange matching engine, rollup state manager, prover cluster (master and workers), and zk circuit codes.
 
-Currently it is only a demo/PoC version, so many features are still WIP. 
+Currently it is only a demo/PoC version, and many features are still WIP. 
 
 # Components & Submodules
 
