@@ -26,7 +26,7 @@ block_root:
 	psql $(ROLLUP_DB) -c 'select block_id, new_root from l2block order by block_id desc limit 1' | cat
 
 tail_log:
-	ls rollup-state-manager/*.log prover-cluster/*.log dingir-exchange/*.log | xargs tail -n 3
+	ls rollup-state-manager/*.log prover-cluster/*.log dingir-exchange/*.log dingir-exchange/logs/*.log regnbue-bridge/*.log | xargs tail -n 3
 
 clean_log:
-	ls rollup-state-manager/*.log prover-cluster/*.log dingir-exchange/*.log | xargs rm
+	ls rollup-state-manager/*.log prover-cluster/*.log dingir-exchange/*.log dingir-exchange/logs/*.log regnbue-bridge/*.log | xargs rm
