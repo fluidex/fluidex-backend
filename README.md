@@ -64,5 +64,5 @@ $ make new_trades
 
 # Known Issues
 
-* In Order signature verification, user nonce and order id should be, but haven't yet been, signed.
+* In order signature verification, user nonce and order id should be, but haven't yet been, signed.
 * For test convenience, common reference string (CRS) is setup locally rather than by MPC.
