@@ -10,3 +10,6 @@
 [submodule "regnbue-bridge"]
 	path = regnbue-bridge
 	url = git@github.com:Fluidex/regnbue-bridge.git
+[submodule "contracts"]
+	path = contracts
+	url = git@github.com:Fluidex/contracts.demo.git
