@@ -17,6 +17,7 @@ TARGET_CIRCUIT_DIR=$CIRCUITS_DIR/testdata/Block_$NTXS"_"$BALANCELEVELS"_"$ORDERL
 PROVER_DIR=$DIR/prover-cluster
 EXCHANGE_DIR=$DIR/dingir-exchange
 FAUCET_DIR=$DIR/regnbue-bridge
+CONTRACTS_DIR=$DIR/contracts
 
 CURRENTDATE=`date +"%Y-%m-%d"`
 
@@ -38,7 +39,7 @@ function prepare_circuit() {
   plonkit setup --power 20 --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key
   plonkit dump-lagrange -c $TARGET_CIRCUIT_DIR/circuit.r1cs --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key --srs_lagrange_form $TARGET_CIRCUIT_DIR/lag.key
   plonkit export-verification-key -c $TARGET_CIRCUIT_DIR/circuit.r1cs --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key -v $TARGET_CIRCUIT_DIR/vk.bin
-  plonkit generate-verifier -v $TARGET_CIRCUIT_DIR/vk.bin -s verifier.sol
+  plonkit generate-verifier -v $TARGET_CIRCUIT_DIR/vk.bin -s $CONTRACTS_DIR/contracts/verifier.sol
 }
 
 function config_prover_cluster() {
