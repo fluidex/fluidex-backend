@@ -7,7 +7,7 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)"
 EXCHANGE_DIR=$DIR/dingir-exchange
 PROVER_DIR=$DIR/prover-cluster
 STATE_MNGR_DIR=$DIR/rollup-state-manager
-FAUCET_DIR=$DIR/
+FAUCET_DIR=$DIR/regnbue-bridge
 
 function kill_tasks() {
   # kill last time running tasks:
