@@ -38,8 +38,16 @@ function prepare_circuit() {
 
   plonkit setup --power 20 --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key
   plonkit dump-lagrange -c $TARGET_CIRCUIT_DIR/circuit.r1cs --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key --srs_lagrange_form $TARGET_CIRCUIT_DIR/lag.key
+}
+
+function prepare_contracts() {
   plonkit export-verification-key -c $TARGET_CIRCUIT_DIR/circuit.r1cs --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key -v $TARGET_CIRCUIT_DIR/vk.bin
+  rm -f $CONTRACTS_DIR/contracts/verifier.sol
   plonkit generate-verifier -v $TARGET_CIRCUIT_DIR/vk.bin -s $CONTRACTS_DIR/contracts/verifier.sol
+  git update-index --assume-unchanged $CONTRACTS_DIR/contracts/verifier.sol
+  cd $CONTRACTS_DIR/
+  yarn install
+  npx hardhat compile
 }
 
 function config_prover_cluster() {
@@ -126,6 +134,7 @@ function run_bin() {
 function setup() {
   handle_submodule
   prepare_circuit
+  prepare_contracts
   config_prover_cluster
 }
 
