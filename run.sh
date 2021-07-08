@@ -44,8 +44,8 @@ function prepare_contracts() {
   plonkit export-verification-key -c $TARGET_CIRCUIT_DIR/circuit.r1cs --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key -v $TARGET_CIRCUIT_DIR/vk.bin
   rm -f $CONTRACTS_DIR/contracts/verifier.sol
   plonkit generate-verifier -v $TARGET_CIRCUIT_DIR/vk.bin -s $CONTRACTS_DIR/contracts/verifier.sol
-  git update-index --assume-unchanged $CONTRACTS_DIR/contracts/verifier.sol
   cd $CONTRACTS_DIR/
+  git update-index --assume-unchanged $CONTRACTS_DIR/contracts/verifier.sol
   yarn install
   npx hardhat compile
 }
