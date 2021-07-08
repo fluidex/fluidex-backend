@@ -11,6 +11,7 @@ FAUCET_DIR=$DIR/regnbue-bridge
 
 function kill_tasks() {
   # kill last time running tasks:
+  ps aux | grep 'fluidex-backend' | grep -v grep | awk '{print $2 " " $11}'
   kill -9 $(ps aux | grep 'fluidex-backend' | grep -v grep | awk '{print $2}') || true
   # tick.ts
   # matchengine
