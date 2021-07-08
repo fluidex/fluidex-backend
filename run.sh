@@ -3,8 +3,6 @@ set -uex
 
 # assume already install: libgmp-dev nasm nlohmann-json3-dev snarkit plonkit
 
-# TODO: detect file and skip
-
 source ./common.sh
 source ./envs/small
 export VERBOSE=false
@@ -142,5 +140,6 @@ function run_all() {
   run_docker_compose
   run_bin
 }
+
 setup
 run_all
