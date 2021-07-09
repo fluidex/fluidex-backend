@@ -17,8 +17,12 @@ shfmt:
 
 list:
 	ps aux|grep fluidex-backend|grep -v grep || true
+
 new_trades:
 	psql $(EXCHANGE_DB) -c 'select * from market_trade order by time desc limit 10;'
+new_blocks:
+	psql $(PROVER_DB) -c 'select status, created_time, updated_time from task order by created_time desc limit 5' | cat
+	psql $(PROVER_DB) -c "select status, created_time, updated_time from task where status = 'proved' order by created_time desc limit 5" | cat
 
 block_input:
 	psql $(ROLLUP_DB) -c 'select block_id, witness from l2block order by block_id desc limit 1' | cat
