@@ -13,3 +13,6 @@
 [submodule "contracts"]
 	path = contracts
 	url = git@github.com:Fluidex/contracts.demo.git
+[submodule "circuits"]
+	path = circuits
+	url = git@github.com:Fluidex/circuits.git

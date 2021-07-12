@@ -10,14 +10,14 @@ export RUST_BACKTRACE=full
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)"
 STATE_MNGR_DIR=$DIR/rollup-state-manager
-CIRCUITS_DIR=$STATE_MNGR_DIR/circuits
+CIRCUITS_DIR=$DIR/circuits
 TARGET_CIRCUIT_DIR=$CIRCUITS_DIR/testdata/Block_$NTXS"_"$BALANCELEVELS"_"$ORDERLEVELS"_"$ACCOUNTLEVELS
 PROVER_DIR=$DIR/prover-cluster
 EXCHANGE_DIR=$DIR/dingir-exchange
 FAUCET_DIR=$DIR/regnbue-bridge
 CONTRACTS_DIR=$DIR/contracts
 
-CURRENTDATE=`date +"%Y-%m-%d"`
+CURRENTDATE=$(date +"%Y-%m-%d")
 
 function handle_submodule() {
   git submodule update --init --recursive
@@ -26,8 +26,15 @@ function handle_submodule() {
 
 function prepare_circuit() {
   rm -rf $TARGET_CIRCUIT_DIR
-  cd $STATE_MNGR_DIR
-  cargo run --bin gen_export_circuit_testcase
+  #cd $STATE_MNGR_DIR
+  #cargo run --bin gen_export_circuit_testcase
+  mkdir -p $TARGET_CIRCUIT_DIR
+  CIRCUITS_DIR=$CIRCUITS_DIR envsubst > $TARGET_CIRCUIT_DIR/circuit.circom << EOF
+include "${CIRCUITS_DIR}/src/block.circom"
+component main = Block(${NTXS}, ${BALANCELEVELS}, ${ORDERLEVELS}, ${ACCOUNTLEVELS})
+EOF
+  echo 'circuit source:'
+  cat $TARGET_CIRCUIT_DIR/circuit.circom
 
   cd $CIRCUITS_DIR
   npm i
@@ -87,8 +94,9 @@ function run_ticker() {
 
 function run_rollup() {
   cd $STATE_MNGR_DIR
+  mkdir -p circuits/testdata/persist
   cargo build --release --bin rollup_state_manager
-  export DATABASE_URL=postgres://postgres:postgres_AA9944@127.0.0.1:5434/rollup_state_manager 
+  export DATABASE_URL=postgres://postgres:postgres_AA9944@127.0.0.1:5434/rollup_state_manager
   retry_cmd_until_ok sqlx migrate run
   nohup $STATE_MNGR_DIR/target/release/rollup_state_manager >> $STATE_MNGR_DIR/rollup_state_manager.$CURRENTDATE.log 2>&1 &
 }
@@ -106,7 +114,7 @@ function run_prove_workers() {
     cargo build --release
   fi
   if [ $OS = "Darwin" ]; then
-    ( nice -n 20 nohup $PROVER_DIR/target/release/client >> $PROVER_DIR/client.$CURRENTDATE.log 2>&1 & )
+    (nice -n 20 nohup $PROVER_DIR/target/release/client >> $PROVER_DIR/client.$CURRENTDATE.log 2>&1 &)
   else
     nohup $PROVER_DIR/target/release/client >> $PROVER_DIR/client.$CURRENTDATE.log 2>&1 &
     sleep 1
