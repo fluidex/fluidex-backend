@@ -122,6 +122,10 @@ function run_prove_workers() {
   fi
 }
 
+function deploy_contracts() {
+  cat rollup-state-manager/rollup_state_manager.2021-07-14.log | grep "genesis root" | tail -n1 | awk '{print $2}'
+}
+
 function run_faucet() {
   cd $FAUCET_DIR
   cargo build --release --bin faucet
@@ -134,6 +138,7 @@ function run_bin() {
   run_prove_master
   run_prove_workers
   run_rollup
+  deploy_contracts
   run_faucet
 }
 
