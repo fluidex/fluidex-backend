@@ -123,7 +123,7 @@ function run_prove_workers() {
 }
 
 function deploy_contracts() {
-  export GENESIS_ROOT=(cat rollup-state-manager/rollup_state_manager.2021-07-14.log | grep "genesis root" | tail -n1 | awk '{print $3}')
+  export GENESIS_ROOT=$(cat $STATE_MNGR_DIR/rollup_state_manager.$CURRENTDATE.log | grep "genesis root" | tail -n1 | awk '{print $3}')
 }
 
 function run_faucet() {
