@@ -122,6 +122,14 @@ function run_prove_workers() {
   fi
 }
 
+function deploy_contracts() {
+  export GENESIS_ROOT=$(cat $STATE_MNGR_DIR/rollup_state_manager.$CURRENTDATE.log | grep "genesis root" | tail -n1 | awk '{print $3}')
+  cd $CONTRACTS_DIR
+  yarn install
+  nohup npx hardhat node >> $CONTRACTS_DIR/hardhat_node.$CURRENTDATE.log 2>&1 &
+  export CONTRACT_ADDR=$(npx hardhat run scripts/deploy.js --network localhost | grep "Fluidex deployed to:" | awk '{print $4}')
+}
+
 function run_faucet() {
   cd $FAUCET_DIR
   cargo build --release --bin faucet
@@ -134,6 +142,7 @@ function run_bin() {
   run_prove_master
   run_prove_workers
   run_rollup
+  deploy_contracts
   run_faucet
 }
 
