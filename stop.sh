@@ -34,5 +34,10 @@ function stop_docker_composes() {
   stop_docker_compose $FAUCET_DIR faucet
 }
 
+function clean_data() {
+  rm -rf rollup-state-manager/circuits/testdata/persist/
+}
+
 kill_tasks
 stop_docker_composes
+clean_data

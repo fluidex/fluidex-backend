@@ -3,12 +3,6 @@ ROLLUP_DB="postgres://postgres:postgres_AA9944@127.0.0.1:5434/rollup_state_manag
 EXCHANGE_DB="postgres://exchange:exchange_AA9944@127.0.0.1:5432/exchange"
 
 # db related
-prover_db:
-	psql $(PROVER_DB) 
-exchange_db:
-	psql $(EXCHANGE_DB)
-rollup_db:
-	psql $(ROLLUP_DB)
 prover_status:
 	psql $(PROVER_DB) -c "select status, count(*) from task group by status UNION ALL SELECT null status, COUNT(status) from task"
 new_trades:
@@ -20,6 +14,12 @@ block_input:
 	psql $(ROLLUP_DB) -c 'select block_id, witness from l2block order by block_id desc limit 1' | cat
 block_root:
 	psql $(ROLLUP_DB) -c 'select block_id, new_root from l2block order by block_id desc limit 1' | cat
+prover_db:
+	psql $(PROVER_DB) 
+exchange_db:
+	psql $(EXCHANGE_DB)
+rollup_db:
+	psql $(ROLLUP_DB)
 
 # process related
 list:
