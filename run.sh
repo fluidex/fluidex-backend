@@ -19,6 +19,8 @@ CONTRACTS_DIR=$DIR/contracts
 
 CURRENTDATE=$(date +"%Y-%m-%d")
 
+ENVSUB=envsub
+
 function handle_submodule() {
   git submodule update --init --recursive
   if [ -z ${CI+x} ]; then git pull --recurse-submodules; fi
@@ -29,7 +31,7 @@ function prepare_circuit() {
   #cd $STATE_MNGR_DIR
   #cargo run --bin gen_export_circuit_testcase
   mkdir -p $TARGET_CIRCUIT_DIR
-  CIRCUITS_DIR=$CIRCUITS_DIR envsubst > $TARGET_CIRCUIT_DIR/circuit.circom << EOF
+  CIRCUITS_DIR=$CIRCUITS_DIR $ENVSUB > $TARGET_CIRCUIT_DIR/circuit.circom << EOF
 include "${CIRCUITS_DIR}/src/block.circom"
 component main = Block(${NTXS}, ${BALANCELEVELS}, ${ORDERLEVELS}, ${ACCOUNTLEVELS})
 EOF
@@ -58,8 +60,8 @@ function prepare_contracts() {
 function config_prover_cluster() {
   cd $PROVER_DIR
 
-  PORT=50055 WITGEN_INTERVAL=2500 N_WORKERS=10 TARGET_CIRCUIT_DIR=$TARGET_CIRCUIT_DIR envsubst < $PROVER_DIR/config/coordinator.yaml.template > $PROVER_DIR/config/coordinator.yaml
-  TARGET_CIRCUIT_DIR=$TARGET_CIRCUIT_DIR envsubst < $PROVER_DIR/config/client.yaml.template > $PROVER_DIR/config/client.yaml
+  PORT=50055 WITGEN_INTERVAL=2500 N_WORKERS=10 TARGET_CIRCUIT_DIR=$TARGET_CIRCUIT_DIR $ENVSUB < $PROVER_DIR/config/coordinator.yaml.template > $PROVER_DIR/config/coordinator.yaml
+  TARGET_CIRCUIT_DIR=$TARGET_CIRCUIT_DIR $ENVSUB < $PROVER_DIR/config/client.yaml.template > $PROVER_DIR/config/client.yaml
 }
 
 # TODO: send different tasks to different tmux windows
@@ -157,6 +159,5 @@ function run_all() {
   run_docker_compose
   run_bin
 }
-
 setup
 run_all
