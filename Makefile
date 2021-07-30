@@ -1,4 +1,4 @@
-PROVER_DB="postgres://coordinator:coordinator_AA9944@127.0.0.1:5433/prover_cluster"
+PROVER_DB="postgres://postgres:postgres_AA9944@127.0.0.1:5434/rollup_state_manager"
 ROLLUP_DB="postgres://postgres:postgres_AA9944@127.0.0.1:5434/rollup_state_manager"
 EXCHANGE_DB="postgres://exchange:exchange_AA9944@127.0.0.1:5432/exchange"
 
