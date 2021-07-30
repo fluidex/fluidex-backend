@@ -76,7 +76,6 @@ function restart_docker_compose() {
 
 function run_docker_compose() {
   restart_docker_compose $EXCHANGE_DIR exchange
-  restart_docker_compose $PROVER_DIR prover
   restart_docker_compose $STATE_MNGR_DIR rollup
   restart_docker_compose $FAUCET_DIR faucet
 }
@@ -98,8 +97,6 @@ function run_rollup() {
   cd $STATE_MNGR_DIR
   mkdir -p circuits/testdata/persist
   cargo build --release --bin rollup_state_manager
-  export DATABASE_URL=postgres://postgres:postgres_AA9944@127.0.0.1:5434/rollup_state_manager
-  retry_cmd_until_ok sqlx migrate run
   nohup $STATE_MNGR_DIR/target/release/rollup_state_manager >> $STATE_MNGR_DIR/rollup_state_manager.$CURRENTDATE.log 2>&1 &
 }
 
