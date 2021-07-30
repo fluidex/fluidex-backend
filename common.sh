@@ -1,4 +1,4 @@
-export OS="`uname -s`"
+export OS="$(uname -s)"
 
 function retry_cmd_until_ok() {
   set +e

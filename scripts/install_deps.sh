@@ -43,6 +43,7 @@ function install_cli_tools() {
   npm install -g snarkit
   cargo install --git https://github.com/Fluidex/plonkit
   cargo install sqlx-cli
+  cargo install envsub
 }
 
 function install_dev_deps() {

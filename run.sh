@@ -3,8 +3,6 @@ set -uex
 
 # assume already install: libgmp-dev nasm nlohmann-json3-dev snarkit plonkit
 
-# TODO: detect file and skip
-
 source ./common.sh
 source ./envs/small
 export VERBOSE=false
@@ -12,14 +10,16 @@ export RUST_BACKTRACE=full
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)"
 STATE_MNGR_DIR=$DIR/rollup-state-manager
-CIRCUITS_DIR=$STATE_MNGR_DIR/circuits
+CIRCUITS_DIR=$DIR/circuits
 TARGET_CIRCUIT_DIR=$CIRCUITS_DIR/testdata/Block_$NTXS"_"$BALANCELEVELS"_"$ORDERLEVELS"_"$ACCOUNTLEVELS
 PROVER_DIR=$DIR/prover-cluster
 EXCHANGE_DIR=$DIR/dingir-exchange
 FAUCET_DIR=$DIR/regnbue-bridge
 CONTRACTS_DIR=$DIR/contracts
 
-CURRENTDATE=`date +"%Y-%m-%d"`
+CURRENTDATE=$(date +"%Y-%m-%d")
+
+ENVSUB=envsub
 
 function handle_submodule() {
   git submodule update --init --recursive
@@ -28,8 +28,15 @@ function handle_submodule() {
 
 function prepare_circuit() {
   rm -rf $TARGET_CIRCUIT_DIR
-  cd $STATE_MNGR_DIR
-  cargo run --bin gen_export_circuit_testcase
+  #cd $STATE_MNGR_DIR
+  #cargo run --bin gen_export_circuit_testcase
+  mkdir -p $TARGET_CIRCUIT_DIR
+  CIRCUITS_DIR=$CIRCUITS_DIR $ENVSUB > $TARGET_CIRCUIT_DIR/circuit.circom << EOF
+include "${CIRCUITS_DIR}/src/block.circom"
+component main = Block(${NTXS}, ${BALANCELEVELS}, ${ORDERLEVELS}, ${ACCOUNTLEVELS})
+EOF
+  echo 'circuit source:'
+  cat $TARGET_CIRCUIT_DIR/circuit.circom
 
   cd $CIRCUITS_DIR
   npm i
@@ -39,14 +46,22 @@ function prepare_circuit() {
   plonkit setup --power 20 --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key
   plonkit dump-lagrange -c $TARGET_CIRCUIT_DIR/circuit.r1cs --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key --srs_lagrange_form $TARGET_CIRCUIT_DIR/lag.key
   plonkit export-verification-key -c $TARGET_CIRCUIT_DIR/circuit.r1cs --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key -v $TARGET_CIRCUIT_DIR/vk.bin
+}
+
+function prepare_contracts() {
+  rm -f $CONTRACTS_DIR/contracts/verifier.sol
   plonkit generate-verifier -v $TARGET_CIRCUIT_DIR/vk.bin -s $CONTRACTS_DIR/contracts/verifier.sol
+  cd $CONTRACTS_DIR/
+  git update-index --assume-unchanged $CONTRACTS_DIR/contracts/verifier.sol
+  yarn install
+  npx hardhat compile
 }
 
 function config_prover_cluster() {
   cd $PROVER_DIR
 
-  PORT=50055 WITGEN_INTERVAL=2500 TARGET_CIRCUIT_DIR=$TARGET_CIRCUIT_DIR envsubst < $PROVER_DIR/config/coordinator.yaml.template > $PROVER_DIR/config/coordinator.yaml
-  TARGET_CIRCUIT_DIR=$TARGET_CIRCUIT_DIR envsubst < $PROVER_DIR/config/client.yaml.template > $PROVER_DIR/config/client.yaml
+  PORT=50055 WITGEN_INTERVAL=2500 N_WORKERS=10 TARGET_CIRCUIT_DIR=$TARGET_CIRCUIT_DIR $ENVSUB < $PROVER_DIR/config/coordinator.yaml.template > $PROVER_DIR/config/coordinator.yaml
+  TARGET_CIRCUIT_DIR=$TARGET_CIRCUIT_DIR $ENVSUB < $PROVER_DIR/config/client.yaml.template > $PROVER_DIR/config/client.yaml
 }
 
 # TODO: send different tasks to different tmux windows
@@ -61,7 +76,6 @@ function restart_docker_compose() {
 
 function run_docker_compose() {
   restart_docker_compose $EXCHANGE_DIR exchange
-  restart_docker_compose $PROVER_DIR prover
   restart_docker_compose $STATE_MNGR_DIR rollup
   restart_docker_compose $FAUCET_DIR faucet
 }
@@ -81,9 +95,8 @@ function run_ticker() {
 
 function run_rollup() {
   cd $STATE_MNGR_DIR
+  mkdir -p circuits/testdata/persist
   cargo build --release --bin rollup_state_manager
-  export DATABASE_URL=postgres://postgres:postgres_AA9944@127.0.0.1:5434/rollup_state_manager 
-  retry_cmd_until_ok sqlx migrate run
   nohup $STATE_MNGR_DIR/target/release/rollup_state_manager >> $STATE_MNGR_DIR/rollup_state_manager.$CURRENTDATE.log 2>&1 &
 }
 
@@ -100,12 +113,20 @@ function run_prove_workers() {
     cargo build --release
   fi
   if [ $OS = "Darwin" ]; then
-    ( nice -n 20 nohup $PROVER_DIR/target/release/client >> $PROVER_DIR/client.$CURRENTDATE.log 2>&1 & )
+    (nice -n 20 nohup $PROVER_DIR/target/release/client >> $PROVER_DIR/client.$CURRENTDATE.log 2>&1 &)
   else
     nohup $PROVER_DIR/target/release/client >> $PROVER_DIR/client.$CURRENTDATE.log 2>&1 &
     sleep 1
     cpulimit -P $PROVER_DIR/target/release/client -l $((50 * $(nproc))) -b -z # -q
   fi
+}
+
+function deploy_contracts() {
+  export GENESIS_ROOT=$(cat $STATE_MNGR_DIR/rollup_state_manager.$CURRENTDATE.log | grep "genesis root" | tail -n1 | awk '{print $3}')
+  cd $CONTRACTS_DIR
+  yarn install
+  nohup npx hardhat node >> $CONTRACTS_DIR/hardhat_node.$CURRENTDATE.log 2>&1 &
+  export CONTRACT_ADDR=$(npx hardhat run scripts/deploy.js --network localhost | grep "Fluidex deployed to:" | awk '{print $4}')
 }
 
 function run_faucet() {
@@ -120,12 +141,14 @@ function run_bin() {
   run_prove_master
   run_prove_workers
   run_rollup
+  deploy_contracts
   run_faucet
 }
 
 function setup() {
   handle_submodule
   prepare_circuit
+  prepare_contracts
   config_prover_cluster
 }
 
