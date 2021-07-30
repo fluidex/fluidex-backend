@@ -33,7 +33,7 @@ Some zero knowledge development tools developed by Fludiex team are used to proc
 
 # How to run it
 
-Ubuntu 20.04 is the only supported environment currently.   
+Ubuntu 20.04 is the only supported environment currently. You could speed up the building following https://doc.rust-lang.org/cargo/guide/build-cache.html#shared-cache, and more documents can be found [here](https://github.com/mozilla/sccache/blob/master/README.md).
 
 ```
 # install some dependencies and tools
