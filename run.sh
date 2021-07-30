@@ -76,7 +76,6 @@ function restart_docker_compose() {
 
 function run_docker_compose() {
   restart_docker_compose $EXCHANGE_DIR exchange
-  restart_docker_compose $PROVER_DIR prover
   restart_docker_compose $STATE_MNGR_DIR rollup
   restart_docker_compose $FAUCET_DIR faucet
 }

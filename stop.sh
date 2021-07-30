@@ -5,7 +5,6 @@ source ./common.sh
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)"
 EXCHANGE_DIR=$DIR/dingir-exchange
-PROVER_DIR=$DIR/prover-cluster
 STATE_MNGR_DIR=$DIR/rollup-state-manager
 FAUCET_DIR=$DIR/regnbue-bridge
 
@@ -29,7 +28,6 @@ function stop_docker_compose() {
 
 function stop_docker_composes() {
   stop_docker_compose $EXCHANGE_DIR exchange
-  stop_docker_compose $PROVER_DIR prover
   stop_docker_compose $STATE_MNGR_DIR rollup
   stop_docker_compose $FAUCET_DIR faucet
 }
