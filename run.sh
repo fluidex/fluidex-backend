@@ -149,10 +149,10 @@ function setup() {
   handle_submodule
   prepare_circuit
   prepare_contracts
-  config_prover_cluster
 }
 
 function run_all() {
+  config_prover_cluster
   run_docker_compose
   run_bin
 }
