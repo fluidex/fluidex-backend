@@ -27,6 +27,9 @@ list:
 
 # log related
 tail_log:
+	docker-compose --file dingir-exchange/docker/docker-compose.yaml --project-name exchange logs > dingir-exchange/logs/docker-compose.log
+	docker-compose --file rollup-state-manager/docker/docker-compose.yaml --project-name rollup logs > rollup-state-manager/docker-compose.log
+	docker-compose --file regnbue-bridge/docker/docker-compose.yaml --project-name faucet logs > regnbue-bridge/docker-compose.log
 	ls rollup-state-manager/*.log prover-cluster/*.log dingir-exchange/*.log dingir-exchange/logs/*.log regnbue-bridge/*.log | xargs tail -n 3
 clean_log:
 	ls rollup-state-manager/*.log prover-cluster/*.log dingir-exchange/*.log dingir-exchange/logs/*.log regnbue-bridge/*.log | xargs rm
