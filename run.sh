@@ -138,12 +138,13 @@ function run_faucet() {
   nohup "$FAUCET_DIR/target/release/faucet" >> $FAUCET_DIR/faucet.$CURRENTDATE.log 2>&1 &
 }
 
-function run_tele_out() {
-  cd $FAUCET_DIR
-  cargo build --release --bin tele_out
-  CONTRACTS_DIR=$CONTRACTS_DIR CONTRACT_ADDR=$CONTRACT_ADDR $ENVSUB < $FAUCET_DIR/config/tele_out.yaml.template > $FAUCET_DIR/config/tele_out.yaml
-  nohup "$FAUCET_DIR/target/release/tele_out" >> $FAUCET_DIR/tele_out.$CURRENTDATE.log 2>&1 &
-}
+# TODO: need to fix task_fetcher, gitignore, comfig template & example, contracts...
+# function run_tele_out() {
+#   cd $FAUCET_DIR
+#   cargo build --release --bin tele_out
+#   CONTRACTS_DIR=$CONTRACTS_DIR CONTRACT_ADDR=$CONTRACT_ADDR $ENVSUB < $FAUCET_DIR/config/tele_out.yaml.template > $FAUCET_DIR/config/tele_out.yaml
+#   nohup "$FAUCET_DIR/target/release/tele_out" >> $FAUCET_DIR/tele_out.$CURRENTDATE.log 2>&1 &
+# }
 
 function run_bin() {
   run_matchengine
@@ -153,7 +154,7 @@ function run_bin() {
   run_rollup
   deploy_contracts
   run_faucet
-  run_tele_out
+  # run_tele_out
 }
 
 function setup() {
