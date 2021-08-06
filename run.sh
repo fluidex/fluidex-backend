@@ -123,11 +123,12 @@ function run_prove_workers() {
 
 function deploy_contracts() {
   # TODO: retry if empty
-  export GENESIS_ROOT=$(cat $STATE_MNGR_DIR/rollup_state_manager.$CURRENTDATE.log | grep "genesis root" | tail -n1 | awk '{print $3}' | sed 's/Fr(//' | sed 's/)//')
+  export GENESIS_ROOT=$(cat $STATE_MNGR_DIR/rollup_state_manager.$CURRENTDATE.log | grep "genesis root" | tail -n1 | awk '{print $9}' | sed 's/Fr(//' | sed 's/)//')
   cd $CONTRACTS_DIR
   yarn install
   nohup npx hardhat node >> $CONTRACTS_DIR/hardhat_node.$CURRENTDATE.log 2>&1 &
   # TODO: retry if empty
+  sleep 10
   export CONTRACT_ADDR=$(npx hardhat run scripts/deploy.js --network localhost | grep "Fluidex deployed to:" | awk '{print $4}')
 }
 
@@ -137,6 +138,14 @@ function run_faucet() {
   nohup "$FAUCET_DIR/target/release/faucet" >> $FAUCET_DIR/faucet.$CURRENTDATE.log 2>&1 &
 }
 
+# TODO: need to fix task_fetcher, gitignore, comfig template & example, contracts...
+# function run_tele_out() {
+#   cd $FAUCET_DIR
+#   cargo build --release --bin tele_out
+#   CONTRACTS_DIR=$CONTRACTS_DIR CONTRACT_ADDR=$CONTRACT_ADDR $ENVSUB < $FAUCET_DIR/config/tele_out.yaml.template > $FAUCET_DIR/config/tele_out.yaml
+#   nohup "$FAUCET_DIR/target/release/tele_out" >> $FAUCET_DIR/tele_out.$CURRENTDATE.log 2>&1 &
+# }
+
 function run_bin() {
   run_matchengine
   run_ticker
@@ -145,6 +154,7 @@ function run_bin() {
   run_rollup
   deploy_contracts
   run_faucet
+  # run_tele_out
 }
 
 function setup() {
