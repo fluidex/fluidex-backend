@@ -121,26 +121,12 @@ function run_prove_workers() {
   fi
 }
 
-function get_genesis_root() {
-  export GENESIS_ROOT=$(cat $STATE_MNGR_DIR/rollup_state_manager.$CURRENTDATE.log | grep "genesis root" | tail -n1 | awk '{print $9}' | sed 's/Fr(//' | sed 's/)//')
-  if [ $GENESIS_ROOT = "" ]; then
-    exit 1
-  fi
-}
-
-function get_contract_addr() {
-  export CONTRACT_ADDR=$(npx hardhat run scripts/deploy.js --network localhost | grep "Fluidex deployed to:" | awk '{print $4}')
-  if [ $CONTRACT_ADDR = "" ]; then
-    exit 1
-  fi
-}
-
 function deploy_contracts() {
-  retry_cmd_until_ok get_genesis_root
+  export GENESIS_ROOT=$(cat $STATE_MNGR_DIR/rollup_state_manager.$CURRENTDATE.log | grep "genesis root" | tail -n1 | awk '{print $9}' | sed 's/Fr(//' | sed 's/)//')
   cd $CONTRACTS_DIR
   yarn install
   nohup npx hardhat node >> $CONTRACTS_DIR/hardhat_node.$CURRENTDATE.log 2>&1 &
-  retry_cmd_until_ok get_contract_addr
+  export CONTRACT_ADDR=$(retry_cmd_until_ok npx hardhat run scripts/deploy.js --network localhost | grep "Fluidex deployed to:" | awk '{print $4}')
 }
 
 function run_faucet() {
@@ -163,6 +149,7 @@ function run_bin() {
   run_prove_master
   run_prove_workers
   run_rollup
+  sleep 10
   deploy_contracts
   run_faucet
   # run_tele_out
