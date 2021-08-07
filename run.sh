@@ -129,7 +129,7 @@ function get_genesis_root() {
 }
 
 function get_contract_addr() {
-  export CONTRACT_ADDR=$(retry_cmd_until_ok npx hardhat run scripts/deploy.js --network localhost | grep "Fluidex deployed to:" | awk '{print $4}')
+  export CONTRACT_ADDR=$(npx hardhat run scripts/deploy.js --network localhost | grep "Fluidex deployed to:" | awk '{print $4}')
   if [ $CONTRACT_ADDR = "" ]; then
     exit 1
   fi
