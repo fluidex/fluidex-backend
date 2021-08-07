@@ -169,7 +169,7 @@ function run_bin() {
 }
 
 function setup() {
-  # handle_submodule
+  handle_submodule
   prepare_circuit
   prepare_contracts
 }
