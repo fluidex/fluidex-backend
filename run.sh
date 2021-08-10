@@ -166,5 +166,5 @@ function run_all() {
   run_docker_compose
   run_bin
 }
-# setup
+setup
 run_all
