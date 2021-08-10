@@ -136,12 +136,12 @@ function run_faucet() {
 }
 
 # TODO: need to fix task_fetcher, gitignore, comfig template & example, contracts...
-# function run_tele_out() {
-#   cd $FAUCET_DIR
-#   cargo build --release --bin tele_out
-#   CONTRACTS_DIR=$CONTRACTS_DIR CONTRACT_ADDR=$CONTRACT_ADDR $ENVSUB < $FAUCET_DIR/config/tele_out.yaml.template > $FAUCET_DIR/config/tele_out.yaml
-#   nohup "$FAUCET_DIR/target/release/tele_out" >> $FAUCET_DIR/tele_out.$CURRENTDATE.log 2>&1 &
-# }
+function run_tele_out() {
+  cd $FAUCET_DIR
+  cargo build --release --bin tele_out
+  CONTRACTS_DIR=$CONTRACTS_DIR CONTRACT_ADDR=$CONTRACT_ADDR $ENVSUB < $FAUCET_DIR/config/tele_out.yaml.template > $FAUCET_DIR/config/tele_out.yaml
+  nohup "$FAUCET_DIR/target/release/tele_out" >> $FAUCET_DIR/tele_out.$CURRENTDATE.log 2>&1 &
+}
 
 function run_bin() {
   run_matchengine
@@ -152,7 +152,7 @@ function run_bin() {
   sleep 10
   deploy_contracts
   run_faucet
-  # run_tele_out
+  run_tele_out
 }
 
 function setup() {
@@ -166,5 +166,5 @@ function run_all() {
   run_docker_compose
   run_bin
 }
-setup
+# setup
 run_all
