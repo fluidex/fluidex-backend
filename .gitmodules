@@ -16,3 +16,6 @@
 [submodule "circuits"]
 	path = circuits
 	url = git@github.com:Fluidex/circuits.git
+[submodule "orchestra"]
+	path = orchestra
+	url = https://github.com/Fluidex/orchestra.git

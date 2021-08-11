@@ -16,6 +16,7 @@ PROVER_DIR=$DIR/prover-cluster
 EXCHANGE_DIR=$DIR/dingir-exchange
 FAUCET_DIR=$DIR/regnbue-bridge
 CONTRACTS_DIR=$DIR/contracts
+ORCHESTRA_DIR=$DIR/orchestra
 
 CURRENTDATE=$(date +"%Y-%m-%d")
 
@@ -75,8 +76,7 @@ function restart_docker_compose() {
 }
 
 function run_docker_compose() {
-  restart_docker_compose $EXCHANGE_DIR exchange
-  restart_docker_compose $STATE_MNGR_DIR rollup
+  restart_docker_compose $ORCHESTRA_DIR orchestra
   restart_docker_compose $FAUCET_DIR faucet
 }
 

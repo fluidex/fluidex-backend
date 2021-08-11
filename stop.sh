@@ -7,6 +7,7 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)"
 EXCHANGE_DIR=$DIR/dingir-exchange
 STATE_MNGR_DIR=$DIR/rollup-state-manager
 FAUCET_DIR=$DIR/regnbue-bridge
+ORCHESTRA_DIR=$DIR/orchestra
 
 function kill_tasks() {
   # kill last time running tasks:
@@ -27,8 +28,7 @@ function stop_docker_compose() {
 }
 
 function stop_docker_composes() {
-  stop_docker_compose $EXCHANGE_DIR exchange
-  stop_docker_compose $STATE_MNGR_DIR rollup
+  stop_docker_compose $ORCHESTRA_DIR orchestra
   stop_docker_compose $FAUCET_DIR faucet
 }
 
