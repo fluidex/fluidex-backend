@@ -1,21 +1,21 @@
 [submodule "rollup-state-manager"]
 	path = rollup-state-manager
-	url = git@github.com:Fluidex/rollup-state-manager.git
+	url = git@github.com:fluidex/rollup-state-manager.git
 [submodule "prover-cluster"]
 	path = prover-cluster
-	url = git@github.com:Fluidex/prover-cluster.git
+	url = git@github.com:fluidex/prover-cluster.git
 [submodule "dingir-exchange"]
 	path = dingir-exchange
-	url = git@github.com:Fluidex/dingir-exchange.git
+	url = git@github.com:fluidex/dingir-exchange.git
 [submodule "regnbue-bridge"]
 	path = regnbue-bridge
-	url = git@github.com:Fluidex/regnbue-bridge.git
+	url = git@github.com:fluidex/regnbue-bridge.git
 [submodule "contracts"]
 	path = contracts
-	url = git@github.com:Fluidex/contracts.demo.git
+	url = git@github.com:fluidex/contracts.demo.git
 [submodule "circuits"]
 	path = circuits
-	url = git@github.com:Fluidex/circuits.git
+	url = git@github.com:fluidex/circuits.git
 [submodule "orchestra"]
 	path = orchestra
-	url = https://github.com/Fluidex/orchestra.git
+	url = https://github.com/fluidex/orchestra.git
