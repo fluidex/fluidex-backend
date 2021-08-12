@@ -28,7 +28,7 @@ Some external services:
 * PostgreSQL: the main database we use. It stores the match engine history/state, prover-cluster state, rollup (L2 blocks/L2 txs) state etc. 
 * TimescaleDB: time-series databases, used for exchange market data (e.g., K-Line).
 
-Some zero knowledge development tools developed by Fludiex team are used to process the circuits, including [snarkit](https://github.com/FluiDex/snarkit) and [plonkit](https://github.com/FluiDex/plonkit)
+Some zero knowledge development tools developed by Fludiex team are used to process the circuits, including [snarkit](https://github.com/fluidex/snarkit) and [plonkit](https://github.com/fluidex/plonkit)
 
 
 # How to run it

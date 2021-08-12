@@ -41,7 +41,7 @@ function install_sys_deps() {
 function install_cli_tools() {
   echo 'install some cli tools'
   npm install -g snarkit
-  cargo install --git https://github.com/Fluidex/plonkit
+  cargo install --git https://github.com/fluidex/plonkit
   cargo install sqlx-cli
   cargo install envsub
 }
