@@ -1,5 +1,5 @@
-PROVER_DB="postgres://postgres:postgres_AA9944@127.0.0.1:5434/rollup_state_manager"
-ROLLUP_DB="postgres://postgres:postgres_AA9944@127.0.0.1:5434/rollup_state_manager"
+PROVER_DB="postgres://rollup:rollup_AA9944@127.0.0.1:5433/rollup"
+ROLLUP_DB="postgres://rollup:rollup_AA9944@127.0.0.1:5433/rollup"
 EXCHANGE_DB="postgres://exchange:exchange_AA9944@127.0.0.1:5432/exchange"
 
 # db related
