@@ -74,6 +74,7 @@ function restart_docker_compose() {
   name=$2
   docker-compose --file $dir/docker/docker-compose.yaml --project-name $name down --remove-orphans
   docker_rm -rf $dir/docker/data
+  docker_rm -rf $dir/docker/volumes
   docker-compose --file $dir/docker/docker-compose.yaml --project-name $name up --force-recreate --detach
 }
 
