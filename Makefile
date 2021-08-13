@@ -27,11 +27,11 @@ list:
 
 # log related
 tail_log:
-	docker-compose --file orchestra/docker/docker-compose.yaml --project-name orchestra logs > orchestra/logs/docker-compose.log
+	docker-compose --file orchestra/docker/docker-compose.yaml --project-name orchestra logs > orchestra/docker-compose.log
 	docker-compose --file regnbue-bridge/docker/docker-compose.yaml --project-name faucet logs > regnbue-bridge/docker-compose.log
 	ls rollup-state-manager/*.log prover-cluster/*.log dingir-exchange/*.log dingir-exchange/logs/*.log regnbue-bridge/*.log | xargs tail -n 3
 clean_log:
-	ls rollup-state-manager/*.log prover-cluster/*.log dingir-exchange/*.log dingir-exchange/logs/*.log regnbue-bridge/*.log orchestra/logs/*.log | xargs rm
+	ls rollup-state-manager/*.log prover-cluster/*.log dingir-exchange/*.log dingir-exchange/logs/*.log regnbue-bridge/*.log orchestra/*.log | xargs rm
 
 # code related
 shfmt:
