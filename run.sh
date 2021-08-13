@@ -18,6 +18,8 @@ FAUCET_DIR=$DIR/regnbue-bridge
 CONTRACTS_DIR=$DIR/contracts
 ORCHESTRA_DIR=$DIR/orchestra
 
+ROLLUP_DB="postgres://rollup:rollup_AA9944@127.0.0.1:5433/rollup"
+
 CURRENTDATE=$(date +"%Y-%m-%d")
 
 ENVSUB=envsub
@@ -61,7 +63,7 @@ function prepare_contracts() {
 function config_prover_cluster() {
   cd $PROVER_DIR
 
-  PORT=50055 WITGEN_INTERVAL=2500 N_WORKERS=10 TARGET_CIRCUIT_DIR=$TARGET_CIRCUIT_DIR $ENVSUB < $PROVER_DIR/config/coordinator.yaml.template > $PROVER_DIR/config/coordinator.yaml
+  PORT=50055 DB=$ROLLUP_DB WITGEN_INTERVAL=2500 N_WORKERS=10 TARGET_CIRCUIT_DIR=$TARGET_CIRCUIT_DIR $ENVSUB < $PROVER_DIR/config/coordinator.yaml.template > $PROVER_DIR/config/coordinator.yaml
   TARGET_CIRCUIT_DIR=$TARGET_CIRCUIT_DIR $ENVSUB < $PROVER_DIR/config/client.yaml.template > $PROVER_DIR/config/client.yaml
 }
 
@@ -136,12 +138,12 @@ function run_faucet() {
 }
 
 # TODO: need to fix task_fetcher, gitignore, comfig template & example, contracts...
-# function run_tele_out() {
-#   cd $FAUCET_DIR
-#   cargo build --release --bin tele_out
-#   CONTRACTS_DIR=$CONTRACTS_DIR CONTRACT_ADDR=$CONTRACT_ADDR $ENVSUB < $FAUCET_DIR/config/tele_out.yaml.template > $FAUCET_DIR/config/tele_out.yaml
-#   nohup "$FAUCET_DIR/target/release/tele_out" >> $FAUCET_DIR/tele_out.$CURRENTDATE.log 2>&1 &
-# }
+function run_tele_out() {
+  cd $FAUCET_DIR
+  cargo build --release --bin tele_out
+  DB=$ROLLUP_DB CONTRACTS_DIR=$CONTRACTS_DIR CONTRACT_ADDR=$CONTRACT_ADDR $ENVSUB < $FAUCET_DIR/config/tele_out.yaml.template > $FAUCET_DIR/config/tele_out.yaml
+  nohup "$FAUCET_DIR/target/release/tele_out" >> $FAUCET_DIR/tele_out.$CURRENTDATE.log 2>&1 &
+}
 
 function run_bin() {
   run_matchengine
@@ -152,7 +154,7 @@ function run_bin() {
   sleep 10
   deploy_contracts
   run_faucet
-  # run_tele_out
+  run_tele_out
 }
 
 function setup() {
