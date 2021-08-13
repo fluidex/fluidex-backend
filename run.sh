@@ -81,6 +81,7 @@ function restart_docker_compose() {
 function run_docker_compose() {
   restart_docker_compose $ORCHESTRA_DIR orchestra
   restart_docker_compose $FAUCET_DIR faucet
+  sleep 10
 }
 
 function run_matchengine() {
