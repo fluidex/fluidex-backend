@@ -24,7 +24,9 @@ function stop_docker_compose() {
   dir=$1
   name=$2
   docker-compose --file $dir/docker/docker-compose.yaml --project-name $name down
+  # TODO: Updates to one name to save docker data for all projects.
   docker_rm $dir/docker/data -rf
+  docker_rm $dir/docker/volumes -rf
 }
 
 function stop_docker_composes() {
