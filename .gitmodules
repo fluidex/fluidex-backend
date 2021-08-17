@@ -19,3 +19,7 @@
 [submodule "orchestra"]
 	path = orchestra
 	url = https://github.com/fluidex/orchestra.git
+[submodule "cluster-orchestra"]
+	active = false
+	path = cluster-orchestra
+	url = git@github.com:fluidex/fluidex-orchestra.git
