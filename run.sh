@@ -42,8 +42,12 @@ EOF
   cat $TARGET_CIRCUIT_DIR/circuit.circom
 
   cd $CIRCUITS_DIR
+
   npm i
   # TODO: detect and install snarkit
+  # if you encounter issues on compile, try using following cmd line instead: 
+  # see https://github.com/fluidex/snarkit/issues/14 
+  # snarkit compile $TARGET_CIRCUIT_DIR --backend=auto 2>&1 | tee /tmp/snarkit.log
   snarkit compile $TARGET_CIRCUIT_DIR --verbose --backend=auto 2>&1 | tee /tmp/snarkit.log
 
   plonkit setup --power 20 --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key
@@ -149,7 +153,6 @@ function run_tele_out() {
 
 function run_bin() {
   run_matchengine
-  run_ticker
   run_prove_master
   run_prove_workers
   run_rollup
@@ -169,6 +172,7 @@ function run_all() {
   config_prover_cluster
   run_docker_compose
   run_bin
+  run_ticker
 }
 setup
 run_all
