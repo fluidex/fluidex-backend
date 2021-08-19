@@ -22,7 +22,10 @@ ROLLUP_DB="postgres://rollup:rollup_AA9944@127.0.0.1:5433/rollup"
 
 CURRENTDATE=$(date +"%Y-%m-%d")
 
-ENVSUB=envsub
+[[ -v ENVSUB ]]
+if [ ! $? -eq 0 ]; then
+  ENVSUB=envsub
+fi
 
 function handle_submodule() {
   git submodule update --init --recursive
@@ -120,6 +123,9 @@ function run_prove_workers() {
   if [ ! -f $PROVER_DIR/target/release/client ]; then
     cargo build --release
   fi
+  if [[ ! -z ${NO_LOCAL_WORKER+x}  ]]; then
+    return
+  fi
   if [ $OS = "Darwin" ]; then
     (nice -n 20 nohup $PROVER_DIR/target/release/client >> $PROVER_DIR/client.$CURRENTDATE.log 2>&1 &)
   else
@@ -174,5 +180,8 @@ function run_all() {
   run_bin
   run_ticker
 }
-setup
-run_all
+
+if [[ -z ${AS_RESOURCE+x}  ]]; then
+  setup
+  run_all
+fi
