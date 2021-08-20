@@ -22,10 +22,7 @@ ROLLUP_DB="postgres://rollup:rollup_AA9944@127.0.0.1:5433/rollup"
 
 CURRENTDATE=$(date +"%Y-%m-%d")
 
-[[ -v ENVSUB ]]
-if [ ! $? -eq 0 ]; then
-  ENVSUB=envsub
-fi
+[[ -v ENVSUB ]] || ENVSUB=envsub
 
 function handle_submodule() {
   git submodule update --init --recursive

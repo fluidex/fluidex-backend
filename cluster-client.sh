@@ -18,10 +18,7 @@ CLUSTER_NS=test
 
 CLUSTER_ORCHESTRA_DIR=$DIR/cluster-orchestra/prover-cluster
 
-[[ -v STAGE ]]
-if [ ! $? -eq 0 ]; then
-  STAGE=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 6)
-fi
+[[ -v STAGE ]] || STAGE=$(git rev-parse --short HEAD)
 
 function cluster_submodule() {
   git submodule init cluster-orchestra
@@ -77,6 +74,62 @@ fi
 
 }
 
+function deploy_cluster() {
+  cd ${WORK_DIR}
+  kubectl apply -f 0_secrets_image.yaml
+  kubectl apply -f 0_configmaps.yaml
+  kubectl apply -f 1_coordinator_ep.yaml
+  kubectl apply -f 2_services_external.yaml
+  kubectl apply -f 3_client.yaml
+
+  kubectl patch namespace ${OP_NS} -p "{\"metadata\":{\"annotations\":{\"stage\":\"${STAGE}\"}}}"
+}
+
+function reset_endpoint() {
+  kubectl apply -f 1_coordinator_ep.yaml
+  kubectl apply -f 2_services_external.yaml
+}
+
+function scale_cluster(){
+  replica=$1
+  if [[ -z ${replica} ]]; then 
+    echo no replica
+    exit 1
+  fi
+
+  kubectl patch deployment prover-cli-t -n ${OP_NS} -p "{\"spec\":{\"replicas\":${replica}}}"
+}
+
+function tear_down() {
+  kubectl delete deployment prover-cli-t -n ${OP_NS}
+  kubectl delete secret img-cred -n ${OP_NS}
+}
+
+function setup_all() {
+  setup
+  cluster_submodule
+  prepare_image
+  config_prover_cluster
+  prepare_cluster
+  run_docker_compose
+  run_bin
+  [[ -v CLUSTER_NS ]] && create_ns
+  deploy_cluster
+}
+
+function run_all(){
+  setup_all  
+  run_ticker
+}
+
+function create_ns(){
+
+  kubectl get namespace ${CLUSTER_NS}
+  if [ ! $? -eq 0 ]; then
+    kubectl create namespace ${CLUSTER_NS}
+  fi
+}
+
 #test k8s
 which kubectl
 if [ ! $? -eq 0 ]; then
@@ -92,7 +145,10 @@ fi
 
 
 WORK_DIR=/tmp/clibuild-${STAGE}
+echo "would use stage ${STAGE}"
 
+[[ -v CLUSTER_NS ]] && OP_NS=${CLUSTER_NS} || OP_NS=default
+INSTALLED_STAGE=`kubectl get namespace ${OP_NS} -o=jsonpath='{.metadata.annotations.stage}'`
 
 #function test_k8s() {
 #}
