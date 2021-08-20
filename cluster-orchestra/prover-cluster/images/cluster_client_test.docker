@@ -1,0 +1,19 @@
+FROM plonkit as KeySetup
+WORKDIR /opt
+COPY --from=setup /opt/block /opt/block
+COPY --from=setup /opt/test /opt/test
+RUN plonkit setup --power 20 --srs_monomial_form mon.key
+RUN cd block \
+    && plonkit dump-lagrange -c circuit.r1cs --srs_monomial_form /opt/mon.key --srs_lagrange_form lag.key \
+    && plonkit export-verification-key -c circuit.r1cs --srs_monomial_form /opt/mon.key
+RUN cd test \
+    && plonkit dump-lagrange -c circuit.r1cs --srs_monomial_form /opt/mon.key --srs_lagrange_form lag.key \
+    && plonkit export-verification-key -c circuit.r1cs --srs_monomial_form /opt/mon.key
+
+FROM prover
+WORKDIR /opt
+COPY --from=KeySetup /opt/block/*.r1cs /opt/block/*.key /opt/block/*.bin /opt/block/
+COPY --from=KeySetup /opt/test/*.r1cs /opt/test/*.key /opt/test/*.bin /opt/test/
+COPY --from=KeySetup /opt/mon.key /opt
+ENV CLIENT_CONFIG=client.yaml
+CMD client

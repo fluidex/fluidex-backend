@@ -1,0 +1,25 @@
+{
+  "stage": "A44758",
+  "circuit_name": "block",
+  "coordinator_endpoint": "http://cluster-coordinator:50055",
+  "coordinator": {
+    "endpoint": "10.18.68.177",
+    "port": 50055
+  },
+  "image": {
+    "auth": {
+      "user_name": "joe",
+      "password": "no my secrect"
+    },
+    "host": "dockerhub.my",
+    "namespace": "backend",
+    "repo": "prover"
+  },
+
+  "deploy": {
+    "name": "test-deploy",
+    "namespace": "test",
+    "replica": 2,
+  }
+
+}

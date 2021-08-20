@@ -1,0 +1,6 @@
+FROM prover
+WORKDIR /opt
+COPY --from=setup /opt/block /opt/circuit_block
+COPY --from=setup /opt/test /opt/circuit_test
+ENV COORDINATOR_CONFIG=coordinator.yaml
+CMD coordinator

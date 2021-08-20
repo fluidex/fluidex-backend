@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prover-cli-t
+  labels:
+    app: client
+    stage: <%- stage %>
+<%_ if (deploy?.namespace) { _%>
+  namespace: <%- deploy.namespace %>
+<%_ } _%>
+spec:
+  replicas: <%- deploy.replica %>
+  selector:
+    matchLabels:
+<%_ const deployName = deploy.name || ('cli' + '-' + stage) _%>
+      app: <%- deployName %>
+  template:
+    metadata:
+      labels:
+        app: <%- deployName %>
+        role: cluster-prover
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: fluidexnode
+                operator: In
+                values:
+                - computation
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                role: cluster-prover
+            topologyKey: kubernetes.io/hostname
+      tolerations:
+      - key: dedicated
+        operator: Equal
+        value: computation    
+   <%_ if (image.auth) { _%>
+      imagePullSecrets:
+        - name: img-cred
+   <%_ } _%>
+      containers:
+      - name: client
+        image: <%- image.host -%>/<%- image.repo -%>:client-<%- stage %>
+        env:
+   <%_ if (coordinator_endpoint) { _%>
+          - name: CLIENT_UPSTREAM
+            value: <%- coordinator_endpoint %>
+   <%_ } _%>
+          - name: RUST_LOG
+            value: info
+          - name: CLIENT_PROVER_ID
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: CLIENT_CIRCUIT
+            value: <%- circuit_name %>
+          - name: CLIENT_CONFIG
+            value: config/client.yaml
+        volumeMounts:
+          - name: config-volume
+            mountPath: /opt/config
+      volumes:
+        - name: config-volume
+          configMap:
+            name: cluster-conf
+            items:
+            - key: client
+              path: client.yaml  
+

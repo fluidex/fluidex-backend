@@ -1,0 +1,14 @@
+FROM prover
+WORKDIR /opt
+COPY --from=setup /opt/block /opt
+COPY --from=setup /opt/test /opt
+COPY ./setup/mon.key /opt/mon.key
+RUN plonkit setup --power 20 --srs_monomial_form mon.key
+RUN cd block \
+    && plonkit dump-lagrange -c circuit.r1cs --srs_monomial_form /opt/mon.key --srs_lagrange_form lag.key \
+    && plonkit export-verification-key -c circuit.r1cs --srs_monomial_form /opt/mon.key
+RUN cd test \
+    && plonkit dump-lagrange -c circuit.r1cs --srs_monomial_form /opt/mon.key --srs_lagrange_form lag.key \
+    && plonkit export-verification-key -c circuit.r1cs --srs_monomial_form /opt/mon.key
+
+CMD client
