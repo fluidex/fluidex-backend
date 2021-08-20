@@ -61,11 +61,12 @@ $ make new_trades
 
 ```
 
+Now you can also attach a prove client cluster to the backend, see [the document](docs/client-cluster.md)
+
 
 # TODOs
 
 * Data availability. And change original inputs as private, then use their hash as the (single) public input.
-* Deploying the proving cluster to a k8s cluster
 * Rollup state persistence. (In this demo, state-manager still re-fetches txs from the beginning.)
 
 # Known Issues

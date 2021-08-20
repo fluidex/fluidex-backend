@@ -4,17 +4,19 @@ set -uex
 # assume already install: libgmp-dev nasm nlohmann-json3-dev snarkit plonkit
 AS_RESOURCE=yes source ./run.sh
 
-IMAGE_AUTH_USER=beatrix@163.com
-IMAGE_AUTH_PASSWORD=1yhq8tvrcv44AlC
-IMAGE_HOST=registry.cn-wulanchabu.aliyuncs.com
-IMAGE_HOST_ALIAS=registry-vpc.cn-wulanchabu.aliyuncs.com
-IMAGE_REPO=fluidex-demo/prover
+#IMAGE_AUTH_USER=beatrix@163.com
+#IMAGE_AUTH_PASSWORD=1yhq8tvrcv44AlC
+#IMAGE_HOST=registry.cn-wulanchabu.aliyuncs.com
+#IMAGE_HOST_ALIAS=registry-vpc.cn-wulanchabu.aliyuncs.com
+#IMAGE_REPO=fluidex-demo/prover
+[[ -v IMAGE_REPO ]]
 
-COORDINATOR_EP=10.18.68.177
-#COORDINATOR_PORT=50055
+#COORDINATOR_EP=10.18.68.177
+[[ -v COORDINATOR_EP ]]
+[[ -v COORDINATOR_PORT]] || COORDINATOR_PORT=50055
 #COORDINATOR_SERV="http://cluster-coordinator:50055"
-CLIENT_REPLICAS=2
-CLUSTER_NS=test
+[[ -v CLIENT_REPLICAS ]] || CLIENT_REPLICAS=2
+#CLUSTER_NS=test
 
 CLUSTER_ORCHESTRA_DIR=$DIR/cluster-orchestra/prover-cluster
 
