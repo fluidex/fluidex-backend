@@ -1,0 +1,27 @@
+apiVersion: v1
+data:
+  client: |-
+    prover_id: 1
+    upstream: "http://cluster_coordinator:50055"
+    poll_interval: 10000
+    circuit: "block"
+    r1cs: "/opt/test/circuit.r1cs"
+    srs_monomial_form: "/opt/mon.key"
+    srs_lagrange_form: "/opt/test/lag.key"
+    vk: "/opt/test/vk.bin"
+  coordinator: |
+    listenaddr: 0.0.0.0
+    port: 50055
+    db: postgres://coordinator:coordinator_AA9944@exchange-pq/prover_cluster
+    witgen:
+      interval: 10000
+      n_workers: 5
+      max_ready_tasks: 1024
+      proved_clear_after: 172800
+      circuits:
+        block: "/opt/circuit_test/circuit.fast"
+  test-upstream: http://coordinator-test:50055
+  prover_db: "prover_cluster"
+kind: ConfigMap
+metadata:
+  name: cluster-conf

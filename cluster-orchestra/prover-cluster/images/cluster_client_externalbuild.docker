@@ -1,0 +1,7 @@
+FROM prover
+WORKDIR /opt
+COPY ./*.r1cs ./*.key ./*.bin /opt/circuit/
+COPY ./mon.key /opt
+ENV CLIENT_CONFIG=client.yaml
+CMD client
+

@@ -1,0 +1,20 @@
+FROM rust:1.51.0-buster
+
+RUN apt-get update
+RUN apt-get install -y --no-install-recommends \
+    build-essential \
+    ca-certificates \
+    curl \
+    git \
+    ssh \
+    libssl-dev \
+    apt-utils \
+    pkg-config \
+    python \
+    libgmp-dev \
+    nasm \
+    nlohmann-json3-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+RUN cargo install --git https://github.com/Fluidex/plonkit && rm -rf /usr/local/cargo/registry
+CMD plonkit

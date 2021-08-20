@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  #we use pod name and constrain the size among 30 bytes
+  name: cli-t
+  labels:
+    app: client
+    group: test
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: client-test 
+  template:
+    metadata:
+      labels:
+        app: client-test
+        role: cluster-prover
+    spec:
+      tolerations:
+      - key: dedicated
+        operator: Equal
+        value: computation    
+      imagePullSecrets:
+        - name: alicr
+      containers:
+      - name: client
+        # TODO: specify the image url from your repo service
+        image: registry-vpc.cn-wulanchabu.aliyuncs.com/fluidex-demo/prover:client
+        env:
+          - name: CLIENT_UPSTREAM
+            valueFrom:
+              configMapKeyRef:
+                name: cluster-conf
+                key: test-upstream
+          - name: RUST_LOG
+            value: info
+          - name: CLIENT_PROVER_ID
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: CLIENT_SRS_LAGRANGE_FORM
+            value: /opt/test/lag.key
+          - name: CLIENT_VK
+            value: /opt/test/vk.bin
+          - name: CLIENT_CONFIG
+            value: config/client.yaml
+        volumeMounts:
+          - name: config-volume
+            mountPath: /opt/config
+      volumes:
+        - name: config-volume
+          configMap:
+            name: cluster-conf
+            items:
+            - key: client
+              path: client.yaml  
+

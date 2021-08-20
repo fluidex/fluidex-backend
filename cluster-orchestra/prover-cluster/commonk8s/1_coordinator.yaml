@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coordinator-test
+  labels:
+    app: coordinator
+    group: test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: coordinator-test
+  template:
+    metadata:
+      labels:
+        app: coordinator-test
+    spec:
+      imagePullSecrets:
+        - name: alicr
+      containers:
+      - name: coordinator
+        # TODO: specify the image url from your repo service
+        image: registry-vpc.cn-wulanchabu.aliyuncs.com/fluidex-demo/prover:coordinator
+        ports:
+        - containerPort: 50055
+          name: grpc
+          protocol: TCP
+        readinessProbe:
+          tcpSocket:
+            port: 50055
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 50055
+          initialDelaySeconds: 30
+          periodSeconds: 60
+        env:
+          - name: COORDINATOR_DB
+            valueFrom:
+              secretKeyRef:
+                name: db-secrets
+                key: url
+          - name: COORDINATOR_LISTENADDR
+            value: 0.0.0.0
+          - name: RUST_LOG
+            value: info,sqlx=warn
+          - name: COORDINATOR_WITGEN_CIRCUITS_BLOCK
+            value: /opt/circuit_test/circuit.fast
+          - name: COORDINATOR_CONFIG
+            value: config/coordinator.yaml
+        volumeMounts:
+          - name: config-volume
+            mountPath: /opt/config
+      volumes:
+        - name: config-volume
+          configMap:
+            name: cluster-conf
+            items:
+            - key: coordinator
+              path: coordinator.yaml     
+

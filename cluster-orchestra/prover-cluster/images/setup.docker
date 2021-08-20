@@ -1,0 +1,66 @@
+FROM rust:1.50.0-buster as plonkit
+
+RUN apt-get update
+RUN apt-get install -y --no-install-recommends \
+    build-essential \
+    ca-certificates \
+    curl \
+    git \
+    ssh \
+    libssl-dev \
+    apt-utils \
+    pkg-config \
+    python \
+    libgmp-dev \
+    nasm \
+    nlohmann-json3-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+RUN cargo install --git https://github.com/Fluidex/plonkit && rm -rf /usr/local/cargo/registry
+CMD plonkit
+
+FROM node:lts-buster as circuit
+
+RUN apt-get update
+RUN apt-get install -y --no-install-recommends \
+    libgmp-dev \
+    nasm \
+    nlohmann-json3-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN npm -g install snarkit
+
+WORKDIR /opt
+RUN git clone https://github.com/Fluidex/circuits
+# the first install is trick to avoid a npm i failure ...
+RUN cd circuits \
+    && rm package-lock.json \
+    && npm i blake2b-wasm@2.1.0 \
+    && npm i \
+    && cp src block -r \
+    && mv block/block.circom block/circuit.circom \
+    && printf 'component main = Block(%d, %d, %d, %d);' \
+    ${N_TXS:=2} ${BALANCE_LEVELS:-2} ${ORDER_LEVELS:-7} ${ACCOUNT_LEVELS:-2} >> block/circuit.circom \
+    && snarkit compile block
+# also add an simple circuit for test...
+RUN git clone https://github.com/Fluidex/plonkit
+RUN cd plonkit && npm i \
+    && cd test/circuits \
+    && snarkit compile poseidon
+
+FROM plonkit
+WORKDIR /opt
+COPY --from=circuit /opt/circuits/block ./block
+COPY --from=circuit /opt/plonkit/test/circuits/poseidon ./test
+
+#RUN plonkit setup --power 20 --srs_monomial_form mon.key
+#RUN cd block \
+#    && plonkit dump-lagrange -c circuit.r1cs --srs_monomial_form /opt/mon.key --srs_lagrange_form lag.key \
+#    && plonkit export-verification-key -c circuit.r1cs --srs_monomial_form /opt/mon.key
+
+#RUN cd test \
+#    && plonkit dump-lagrange -c circuit.r1cs --srs_monomial_form /opt/mon.key --srs_lagrange_form lag.key \
+#    && plonkit export-verification-key -c circuit.r1cs --srs_monomial_form /opt/mon.key
+
+
