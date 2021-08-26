@@ -18,4 +18,4 @@
 	url = git@github.com:fluidex/circuits.git
 [submodule "orchestra"]
 	path = orchestra
-	url = https://github.com/fluidex/orchestra.git
+	url = git@github.com:fluidex/orchestra.git
