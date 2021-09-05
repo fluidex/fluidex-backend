@@ -147,11 +147,11 @@ function run_faucet() {
 }
 
 # TODO: need to fix task_fetcher, gitignore, comfig template & example, contracts...
-function run_tele_out() {
+function run_block_submitter() {
   cd $FAUCET_DIR
-  cargo build --release --bin tele_out
-  DB=$ROLLUP_DB CONTRACTS_DIR=$CONTRACTS_DIR CONTRACT_ADDR=$CONTRACT_ADDR $ENVSUB < $FAUCET_DIR/config/tele_out.yaml.template > $FAUCET_DIR/config/tele_out.yaml
-  nohup "$FAUCET_DIR/target/release/tele_out" >> $FAUCET_DIR/tele_out.$CURRENTDATE.log 2>&1 &
+  cargo build --release --bin block_submitter
+  DB=$ROLLUP_DB CONTRACTS_DIR=$CONTRACTS_DIR CONTRACT_ADDR=$CONTRACT_ADDR $ENVSUB < $FAUCET_DIR/config/block_submitter.yaml.template > $FAUCET_DIR/config/block_submitter.yaml
+  nohup "$FAUCET_DIR/target/release/block_submitter" >> $FAUCET_DIR/block_submitter.$CURRENTDATE.log 2>&1 &
 }
 
 function run_bin() {
@@ -162,7 +162,7 @@ function run_bin() {
   sleep 10
   deploy_contracts
   run_faucet
-  run_tele_out
+  run_block_submitter
 }
 
 function setup() {
