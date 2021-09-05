@@ -9,7 +9,7 @@ Currently it is only a demo/PoC version, and many features are still WIP.
 # Architecture
 
 <p align="center">
-  <img src="docs/Fluidex Architecture.svg" width="600" >
+  <img src="docs/FluiDex Architecture.svg" width="600" >
 </p>
 
 # Components & Submodules
