@@ -17,3 +17,10 @@ function docker_rm() {
     sudo rm $@
   fi
 }
+
+function check_config() {
+  if [[ -z ${CONTRACT_ADDR} ]]; then
+    echo "please config FluiDex contract address"
+    exit
+  fi
+}

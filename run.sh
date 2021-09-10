@@ -3,6 +3,7 @@ set -uex
 
 # assume already install: libgmp-dev nasm nlohmann-json3-dev snarkit plonkit
 
+source ./config.sh
 source ./common.sh
 source ./envs/small
 export VERBOSE=false
@@ -53,15 +54,6 @@ EOF
   plonkit setup --power 20 --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key
   plonkit dump-lagrange -c $TARGET_CIRCUIT_DIR/circuit.r1cs --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key --srs_lagrange_form $TARGET_CIRCUIT_DIR/lag.key
   plonkit export-verification-key -c $TARGET_CIRCUIT_DIR/circuit.r1cs --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key -v $TARGET_CIRCUIT_DIR/vk.bin
-}
-
-function prepare_contracts() {
-  rm -f $CONTRACTS_DIR/contracts/verifier.sol
-  plonkit generate-verifier -v $TARGET_CIRCUIT_DIR/vk.bin -s $CONTRACTS_DIR/contracts/verifier.sol
-  cd $CONTRACTS_DIR/
-  git update-index --assume-unchanged $CONTRACTS_DIR/contracts/verifier.sol
-  yarn install
-  npx hardhat compile
 }
 
 function config_prover_cluster() {
@@ -132,20 +124,6 @@ function run_prove_workers() {
   fi
 }
 
-function deploy_contracts() {
-  export GENESIS_ROOT=$(cat $STATE_MNGR_DIR/rollup_state_manager.$CURRENTDATE.log | grep "genesis root" | tail -n1 | awk '{print $9}' | sed 's/Fr(//' | sed 's/)//')
-  cd $CONTRACTS_DIR
-  yarn install
-  nohup npx hardhat node >> $CONTRACTS_DIR/hardhat_node.$CURRENTDATE.log 2>&1 &
-  export CONTRACT_ADDR=$(retry_cmd_until_ok npx hardhat run scripts/deploy.js --network localhost | grep "FluiDex deployed to:" | awk '{print $4}')
-}
-
-function run_faucet() {
-  cd $FAUCET_DIR
-  cargo build --release --bin faucet
-  nohup "$FAUCET_DIR/target/release/faucet" >> $FAUCET_DIR/faucet.$CURRENTDATE.log 2>&1 &
-}
-
 # TODO: need to fix task_fetcher, gitignore, comfig template & example, contracts...
 function run_block_submitter() {
   cd $FAUCET_DIR
@@ -160,15 +138,12 @@ function run_bin() {
   run_prove_workers
   run_rollup
   sleep 10
-  deploy_contracts
-  run_faucet
   run_block_submitter
 }
 
 function setup() {
   handle_submodule
   prepare_circuit
-  prepare_contracts
 }
 
 function run_all() {
@@ -179,6 +154,7 @@ function run_all() {
 }
 
 if [[ -z ${AS_RESOURCE+x}  ]]; then
+  check_config
   setup
   run_all
 fi
