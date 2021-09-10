@@ -19,3 +19,6 @@
 [submodule "orchestra"]
 	path = orchestra
 	url = git@github.com:fluidex/orchestra.git
+[submodule "eth_listener"]
+	path = eth_listener
+	url = git@github.com:fluidex/eth_listener.git
