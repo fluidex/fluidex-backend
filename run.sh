@@ -153,7 +153,6 @@ function run_all() {
   run_ticker
 }
 
-
 if [[ -z ${AS_RESOURCE+x}  ]]; then
   check_config
   setup
