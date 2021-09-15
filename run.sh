@@ -22,6 +22,8 @@ ROLLUP_DB="postgres://rollup:rollup_AA9944@127.0.0.1:5433/rollup"
 
 CURRENTDATE=$(date +"%Y-%m-%d")
 
+MNEMONIC="anxiety else floor soap tent sight belt leave top velvet meadow walk intact spice polar"
+
 [[ -v ENVSUB ]] || ENVSUB=envsub
 
 function handle_submodule() {
@@ -132,11 +134,22 @@ function run_prove_workers() {
   fi
 }
 
+function run_eth_node() {
+  nohup npx ganache-cli \
+    --networkId 53371 \
+    --chainId 53371 \
+    --db $CONTRACTS_DIR/ganache \
+    --accounts 20 \
+    --defaultBalanceEther 1000 \
+    --deterministic \
+    --mnemonic=$MNEMONIC >> $CONTRACTS_DIR/ganache.$CURRENTDATE.log 2>&1 &
+}
+
 function deploy_contracts() {
   export GENESIS_ROOT=$(cat $STATE_MNGR_DIR/rollup_state_manager.$CURRENTDATE.log | grep "genesis root" | tail -n1 | awk '{print $9}' | sed 's/Fr(//' | sed 's/)//')
   cd $CONTRACTS_DIR
   yarn install
-  nohup npx hardhat node >> $CONTRACTS_DIR/hardhat_node.$CURRENTDATE.log 2>&1 &
+  run_eth_node()
   export CONTRACT_ADDR=$(retry_cmd_until_ok npx hardhat run scripts/deploy.js --network localhost | grep "FluiDex deployed to:" | awk '{print $4}')
 }
 
