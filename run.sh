@@ -147,6 +147,7 @@ function run_eth_node() {
     --db $CONTRACTS_DIR/ganache \
     --gasPrice 50000000000 \
     --gasLimit 1050000000000000 \
+    --allowUnlimitedContractSize \
     --accounts 20 \
     --defaultBalanceEther 1000 \
     --deterministic \
