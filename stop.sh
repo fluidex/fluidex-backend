@@ -9,6 +9,7 @@ STATE_MNGR_DIR=$DIR/rollup-state-manager
 FAUCET_DIR=$DIR/regnbue-bridge
 ORCHESTRA_DIR=$DIR/orchestra
 
+echo "DX_CLEAN: $DX_CLEAN"
 
 function kill_tasks() {
   # kill last time running tasks:
@@ -25,7 +26,7 @@ function stop_docker_compose() {
   dir=$1
   name=$2
   docker-compose --file $dir/docker/docker-compose.yaml --project-name $name down --remove-orphans
-  if [ DX_CLEAN == 'TRUE' ]; then
+  if [ $DX_CLEAN == 'TRUE' ]; then
     docker_rm -rf $dir/docker/data
     docker_rm -rf $dir/docker/volumes
   fi
@@ -43,7 +44,7 @@ function clean_data() {
 
 kill_tasks
 stop_docker_composes
-if [ DX_CLEAN == 'TRUE' ]; then
+if [ $DX_CLEAN == 'TRUE' ]; then
   clean_data
 fi
 unset DIRTY
