@@ -38,6 +38,7 @@ function stop_docker_composes() {
 
 function clean_data() {
   rm -rf rollup-state-manager/circuits/testdata/persist/
+  rm -rf contracts/ganache
 }
 
 kill_tasks
