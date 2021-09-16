@@ -32,7 +32,7 @@ function stop_docker_compose() {
 }
 
 function stop_docker_composes() {
-  stop_docker_compose $ORCHESTRA_DIR orchestra6
+  stop_docker_compose $ORCHESTRA_DIR orchestra
   stop_docker_compose $FAUCET_DIR faucet
 }
 
