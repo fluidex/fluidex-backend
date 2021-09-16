@@ -45,3 +45,4 @@ stop_docker_composes
 if [ DX_CLEAN == 'TRUE' ]; then
   clean_data
 fi
+unset DIRTY
