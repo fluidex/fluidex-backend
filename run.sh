@@ -143,6 +143,8 @@ function run_eth_node() {
     --networkId 53371 \
     --chainId 53371 \
     --db $CONTRACTS_DIR/ganache \
+    --gasPrice 50000000000 `#a mainnet like 50 Gwei gas price` \ 
+    --gasLimit 1050000000000000 `#base on 21,000 units limit from mainnet (21,000 units * 50 Gwei)` \
     --accounts 20 \
     --defaultBalanceEther 1000 \
     --deterministic \
