@@ -63,6 +63,9 @@ $ make new_trades
 
 Now you can also attach a prove client cluster to the backend, see [the document](docs/client-cluster.md)
 
+# Persist Data
+
+set env `DX_CLEAN` with `false` (case insensitive) to skip data purging stage when execute `stop.sh`.
 
 # TODOs
 
