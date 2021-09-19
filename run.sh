@@ -141,7 +141,10 @@ function run_prove_workers() {
 function run_eth_node() {
   # a mainnet like 50 Gwei gas price
   # base on 21,000 units limit from mainnet (21,000 units * 50 Gwei)
+  cd $CONTRACTS_DIR
+  yarn install
   nohup npx ganache-cli \
+    --verbose \
     --networkId 53371 \
     --chainId 53371 \
     --db $CONTRACTS_DIR/ganache \
@@ -152,14 +155,22 @@ function run_eth_node() {
     --defaultBalanceEther 1000 \
     --deterministic \
     --mnemonic=$MNEMONIC >> $CONTRACTS_DIR/ganache.$CURRENTDATE.log 2>&1 &
+  sleep 1
 }
 
 function deploy_contracts() {
-  export GENESIS_ROOT=$(cat $STATE_MNGR_DIR/rollup_state_manager.$CURRENTDATE.log | grep "genesis root" | tail -n1 | awk '{print $9}' | sed 's/Fr(//' | sed 's/)//')
   cd $CONTRACTS_DIR
-  yarn install
-  run_eth_node
+  export GENESIS_ROOT=$(cat $STATE_MNGR_DIR/rollup_state_manager.$CURRENTDATE.log | grep "genesis root" | tail -n1 | awk '{print $9}' | sed 's/Fr(//' | sed 's/)//')
   export CONTRACT_ADDR=$(retry_cmd_until_ok npx hardhat run scripts/deploy.js --network localhost | grep "FluiDex deployed to:" | awk '{print $4}')
+  echo "export CONTRACT_ADDR=$CONTRACT_ADDR" > $CONTRACTS_DIR/contract-deployed.env
+}
+
+function restore_contracts() {
+  source $CONTRACTS_DIR/contract-deployed.env
+}
+
+function post_contracts() {
+  nohup npx hardhat run scripts/tick.js --network localhost >> $CONTRACTS_DIR/ticker.$CURRENTDATE.log 2>&1 &
 }
 
 function run_faucet() {
@@ -182,7 +193,13 @@ function run_bin() {
   run_prove_workers
   run_rollup
   sleep 10
-  deploy_contracts
+  run_eth_node
+  if [ $DX_CLEAN == 'TRUE' ]; then
+    deploy_contracts
+  else
+    restore_contracts
+  fi
+  post_contracts
   run_faucet
   run_block_submitter
 }
