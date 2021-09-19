@@ -8,6 +8,13 @@ source ./envs/small
 export VERBOSE=false
 export RUST_BACKTRACE=full
 
+if [[ -v DIRTY ]] && [[ ! -v FORCE ]] ; then
+  echo -e "\033[31mDirty workspace, run stop.sh or set env FORCE to continue.\033[0m"
+  exit 1
+fi
+
+export DIRTY=true
+
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)"
 STATE_MNGR_DIR=$DIR/rollup-state-manager
 CIRCUITS_DIR=$DIR/circuits
@@ -21,6 +28,8 @@ ORCHESTRA_DIR=$DIR/orchestra
 ROLLUP_DB="postgres://rollup:rollup_AA9944@127.0.0.1:5433/rollup"
 
 CURRENTDATE=$(date +"%Y-%m-%d")
+
+MNEMONIC="anxiety else floor soap tent sight belt leave top velvet meadow walk intact spice polar"
 
 [[ -v ENVSUB ]] || ENVSUB=envsub
 
@@ -73,18 +82,15 @@ function config_prover_cluster() {
 
 # TODO: send different tasks to different tmux windows
 
-function restart_docker_compose() {
+function start_docker_compose() {
   dir=$1
   name=$2
-  docker-compose --file $dir/docker/docker-compose.yaml --project-name $name down --remove-orphans
-  docker_rm -rf $dir/docker/data
-  docker_rm -rf $dir/docker/volumes
   docker-compose --file $dir/docker/docker-compose.yaml --project-name $name up --force-recreate --detach
 }
 
 function run_docker_compose() {
-  restart_docker_compose $ORCHESTRA_DIR orchestra
-  restart_docker_compose $FAUCET_DIR faucet
+  start_docker_compose $ORCHESTRA_DIR orchestra
+  start_docker_compose $FAUCET_DIR faucet
   sleep 10
 }
 
@@ -132,12 +138,39 @@ function run_prove_workers() {
   fi
 }
 
-function deploy_contracts() {
-  export GENESIS_ROOT=$(cat $STATE_MNGR_DIR/rollup_state_manager.$CURRENTDATE.log | grep "genesis root" | tail -n1 | awk '{print $9}' | sed 's/Fr(//' | sed 's/)//')
+function run_eth_node() {
+  # a mainnet like 50 Gwei gas price
+  # base on 21,000 units limit from mainnet (21,000 units * 50 Gwei)
   cd $CONTRACTS_DIR
   yarn install
-  nohup npx hardhat node >> $CONTRACTS_DIR/hardhat_node.$CURRENTDATE.log 2>&1 &
+  nohup npx ganache-cli \
+    --verbose \
+    --networkId 53371 \
+    --chainId 53371 \
+    --db $CONTRACTS_DIR/ganache \
+    --gasPrice 50000000000 \
+    --gasLimit 1050000000000000 \
+    --allowUnlimitedContractSize \
+    --accounts 20 \
+    --defaultBalanceEther 1000 \
+    --deterministic \
+    --mnemonic=$MNEMONIC >> $CONTRACTS_DIR/ganache.$CURRENTDATE.log 2>&1 &
+  sleep 1
+}
+
+function deploy_contracts() {
+  cd $CONTRACTS_DIR
+  export GENESIS_ROOT=$(cat $STATE_MNGR_DIR/rollup_state_manager.$CURRENTDATE.log | grep "genesis root" | tail -n1 | awk '{print $9}' | sed 's/Fr(//' | sed 's/)//')
   export CONTRACT_ADDR=$(retry_cmd_until_ok npx hardhat run scripts/deploy.js --network localhost | grep "FluiDex deployed to:" | awk '{print $4}')
+  echo "export CONTRACT_ADDR=$CONTRACT_ADDR" > $CONTRACTS_DIR/contract-deployed.env
+}
+
+function restore_contracts() {
+  source $CONTRACTS_DIR/contract-deployed.env
+}
+
+function post_contracts() {
+  nohup npx hardhat run scripts/tick.js --network localhost >> $CONTRACTS_DIR/ticker.$CURRENTDATE.log 2>&1 &
 }
 
 function run_faucet() {
@@ -160,7 +193,13 @@ function run_bin() {
   run_prove_workers
   run_rollup
   sleep 10
-  deploy_contracts
+  run_eth_node
+  if [ $DX_CLEAN == 'TRUE' ]; then
+    deploy_contracts
+  else
+    restore_contracts
+  fi
+  post_contracts
   run_faucet
   run_block_submitter
 }

@@ -9,6 +9,8 @@ STATE_MNGR_DIR=$DIR/rollup-state-manager
 FAUCET_DIR=$DIR/regnbue-bridge
 ORCHESTRA_DIR=$DIR/orchestra
 
+echo "DX_CLEAN: $DX_CLEAN"
+
 function kill_tasks() {
   # kill last time running tasks:
   ps aux | grep 'fluidex-backend' | grep -v grep | awk '{print $2 " " $11}'
@@ -23,9 +25,11 @@ function kill_tasks() {
 function stop_docker_compose() {
   dir=$1
   name=$2
-  docker-compose --file $dir/docker/docker-compose.yaml --project-name $name down
-  docker_rm -rf $dir/docker/data
-  docker_rm -rf $dir/docker/volumes
+  docker-compose --file $dir/docker/docker-compose.yaml --project-name $name down --remove-orphans
+  if [ $DX_CLEAN == 'TRUE' ]; then
+    docker_rm -rf $dir/docker/data
+    docker_rm -rf $dir/docker/volumes
+  fi
 }
 
 function stop_docker_composes() {
@@ -35,8 +39,12 @@ function stop_docker_composes() {
 
 function clean_data() {
   rm -rf rollup-state-manager/circuits/testdata/persist/
+  rm -rf contracts/ganache
 }
 
 kill_tasks
 stop_docker_composes
-clean_data
+if [ $DX_CLEAN == 'TRUE' ]; then
+  clean_data
+fi
+unset DIRTY

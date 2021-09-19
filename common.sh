@@ -1,5 +1,8 @@
 export OS="$(uname -s)"
 
+DX_CLEAN=${DX_CLEAN:-TRUE}
+export DX_CLEAN="${DX_CLEAN^^}"
+
 function retry_cmd_until_ok() {
   set +e
   $@
