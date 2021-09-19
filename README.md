@@ -65,6 +65,7 @@ Now you can also attach a prove client cluster to the backend, see [the document
 
 # Persist Data
 
+NOTE: for the first time, DO NOT set `DX_CLEAN` before `run.sh`.
 set env `DX_CLEAN` with `false` (case insensitive) to skip data purging stage when execute `stop.sh`.
 
 # TODOs
