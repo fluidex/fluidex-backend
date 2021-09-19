@@ -56,10 +56,10 @@ EOF
 }
 
 function prepare_contracts() {
-  rm -f $CONTRACTS_DIR/contracts/verifier.sol
-  plonkit generate-verifier -v $TARGET_CIRCUIT_DIR/vk.bin -s $CONTRACTS_DIR/contracts/verifier.sol
+  rm -f $CONTRACTS_DIR/contracts/Verifier.sol
+  plonkit generate-verifier -v $TARGET_CIRCUIT_DIR/vk.bin -s $CONTRACTS_DIR/contracts/Verifier.sol
   cd $CONTRACTS_DIR/
-  git update-index --assume-unchanged $CONTRACTS_DIR/contracts/verifier.sol
+  git update-index --assume-unchanged $CONTRACTS_DIR/contracts/Verifier.sol
   yarn install
   npx hardhat compile
 }
