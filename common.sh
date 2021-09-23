@@ -1,7 +1,9 @@
 export OS="$(uname -s)"
 
 DX_CLEAN=${DX_CLEAN:-TRUE}
+VERBOSE_GANACHE=${VERBOSE_GANACHE:-false}
 export DX_CLEAN="${DX_CLEAN^^}"
+export VERBOSE_GANACHE="${VERBOSE_GANACHE^^}"
 
 function retry_cmd_until_ok() {
   set +e
