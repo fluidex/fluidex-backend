@@ -143,7 +143,7 @@ function run_eth_node() {
   # base on 21,000 units limit from mainnet (21,000 units * 50 Gwei)
   cd $CONTRACTS_DIR
   yarn install
-  if [ $VERBOSE_GANACHE == 'TRUE' ]; then
+  if $VERBOSE_GANACHE; then
     nohup npx ganache-cli \
       --verbose \
       --networkId 53371 \
@@ -169,7 +169,6 @@ function run_eth_node() {
       --deterministic \
       --mnemonic=$MNEMONIC >> $CONTRACTS_DIR/ganache.$CURRENTDATE.log 2>&1 &
   fi
-
   sleep 1
 }
 
