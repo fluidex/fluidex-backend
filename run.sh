@@ -153,7 +153,7 @@ function run_eth_node() {
       --defaultBalanceEther 1000 \
       --deterministic \
       --mnemonic=$MNEMONIC'
-  if $VERBOSE_GANACHE; then
+  if [ $VERBOSE_GANACHE == 'TRUE' ]; then
     GANACHE_CLI_ARG=$GANACHE_CLI_ARG" --verbose"
   fi
   nohup npx ganache-cli $GANACHE_CLI_ARG >> $CONTRACTS_DIR/ganache.$CURRENTDATE.log 2>&1 &
