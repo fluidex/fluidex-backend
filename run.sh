@@ -143,10 +143,7 @@ function run_eth_node() {
   # base on 21,000 units limit from mainnet (21,000 units * 50 Gwei)
   cd $CONTRACTS_DIR
   yarn install
-  if $VERBOSE_GANACHE; then
-    nohup npx ganache-cli \
-      --verbose \
-      --networkId 53371 \
+  GANACHE_CLI_ARG='--networkId 53371 \
       --chainId 53371 \
       --db $CONTRACTS_DIR/ganache \
       --gasPrice 50000000000 \
@@ -155,20 +152,11 @@ function run_eth_node() {
       --accounts 20 \
       --defaultBalanceEther 1000 \
       --deterministic \
-      --mnemonic=$MNEMONIC >> $CONTRACTS_DIR/ganache.$CURRENTDATE.log 2>&1 &
-  else
-    nohup npx ganache-cli \
-      --networkId 53371 \
-      --chainId 53371 \
-      --db $CONTRACTS_DIR/ganache \
-      --gasPrice 50000000000 \
-      --gasLimit 1050000000000000 \
-      --allowUnlimitedContractSize \
-      --accounts 20 \
-      --defaultBalanceEther 1000 \
-      --deterministic \
-      --mnemonic=$MNEMONIC >> $CONTRACTS_DIR/ganache.$CURRENTDATE.log 2>&1 &
+      --mnemonic=$MNEMONIC'
+  if [ $VERBOSE_GANACHE == 'TRUE' ]; then
+    GANACHE_CLI_ARG=$GANACHE_CLI_ARG" --verbose"
   fi
+  nohup npx ganache-cli $GANACHE_CLI_ARG >> $CONTRACTS_DIR/ganache.$CURRENTDATE.log 2>&1 &
   sleep 1
 }
 
