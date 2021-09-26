@@ -143,7 +143,7 @@ function run_eth_node() {
   # base on 21,000 units limit from mainnet (21,000 units * 50 Gwei)
   cd $CONTRACTS_DIR
   yarn install
-  GANACHE_CLI_ARG='--networkId 53371 \
+  GANACHE_CLI_ARG="--networkId 53371 \
       --chainId 53371 \
       --db $CONTRACTS_DIR/ganache \
       --gasPrice 50000000000 \
@@ -152,7 +152,7 @@ function run_eth_node() {
       --accounts 20 \
       --defaultBalanceEther 1000 \
       --deterministic \
-      --mnemonic=$MNEMONIC'
+      --mnemonic=$MNEMONIC"
   if [ $VERBOSE_GANACHE == 'TRUE' ]; then
     GANACHE_CLI_ARG=$GANACHE_CLI_ARG" --verbose"
   fi
