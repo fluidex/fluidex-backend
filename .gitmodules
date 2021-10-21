@@ -1,12 +1,14 @@
 [submodule "rollup-state-manager"]
 	path = rollup-state-manager
 	url = git@github.com:fluidex/rollup-state-manager.git
+	branch = change-grpc-and-rest-url-path
 [submodule "prover-cluster"]
 	path = prover-cluster
 	url = git@github.com:fluidex/prover-cluster.git
 [submodule "dingir-exchange"]
 	path = dingir-exchange
 	url = git@github.com:fluidex/dingir-exchange.git
+	branch = change-grpc-and-rest-url-path
 [submodule "regnbue-bridge"]
 	path = regnbue-bridge
 	url = git@github.com:fluidex/regnbue-bridge.git
@@ -19,3 +21,4 @@
 [submodule "orchestra"]
 	path = orchestra
 	url = git@github.com:fluidex/orchestra.git
+	branch = change-grpc-and-rest-url-path
