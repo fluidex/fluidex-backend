@@ -8,6 +8,7 @@ EXCHANGE_DIR=$DIR/dingir-exchange
 STATE_MNGR_DIR=$DIR/rollup-state-manager
 FAUCET_DIR=$DIR/regnbue-bridge
 ORCHESTRA_DIR=$DIR/orchestra
+BLOCKSCOUT_DIR=$DIR/blockscout
 
 echo "DX_CLEAN: $DX_CLEAN"
 
@@ -35,11 +36,11 @@ function stop_docker_compose() {
 function stop_docker_composes() {
   stop_docker_compose $ORCHESTRA_DIR orchestra
   stop_docker_compose $FAUCET_DIR faucet
+  cd $BLOCKSCOUT_DIR && docker-compose down --remove-orphans
 }
 
 function clean_data() {
   rm -rf rollup-state-manager/circuits/testdata/persist/
-  rm -rf contracts/ganache
 }
 
 kill_tasks

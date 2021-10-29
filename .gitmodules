@@ -19,3 +19,6 @@
 [submodule "orchestra"]
 	path = orchestra
 	url = git@github.com:fluidex/orchestra.git
+[submodule "blockscout"]
+	path = blockscout
+	url = git@github.com:fluidex/blockscout.git

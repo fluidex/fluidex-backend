@@ -18,6 +18,7 @@ export DIRTY=true
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)"
 STATE_MNGR_DIR=$DIR/rollup-state-manager
 CIRCUITS_DIR=$DIR/circuits
+BLOCKSCOUT_DIR=$DIR/blockscout
 TARGET_CIRCUIT_DIR=$CIRCUITS_DIR/testdata/Block_$NTXS"_"$BALANCELEVELS"_"$ORDERLEVELS"_"$ACCOUNTLEVELS
 PROVER_DIR=$DIR/prover-cluster
 EXCHANGE_DIR=$DIR/dingir-exchange
@@ -91,6 +92,7 @@ function start_docker_compose() {
 function run_docker_compose() {
   start_docker_compose $ORCHESTRA_DIR orchestra
   start_docker_compose $FAUCET_DIR faucet
+  start_docker_compose $BLOCKSCOUT_DIR blockscout # ganache node & blockscout stuff
   sleep 10
 }
 
@@ -138,26 +140,11 @@ function run_prove_workers() {
   fi
 }
 
-function run_eth_node() {
+function boostrap_contract() {
   # a mainnet like 50 Gwei gas price
   # base on 21,000 units limit from mainnet (21,000 units * 50 Gwei)
   cd $CONTRACTS_DIR
   yarn install
-  GANACHE_CLI_ARG="--networkId 53371 \
-      --chainId 53371 \
-      --db $CONTRACTS_DIR/ganache \
-      --gasPrice 50000000000 \
-      --gasLimit 1050000000000000 \
-      --allowUnlimitedContractSize \
-      --accounts 20 \
-      --defaultBalanceEther 1000 \
-      --deterministic \
-      --mnemonic=$MNEMONIC"
-  if [ $VERBOSE_GANACHE == 'TRUE' ]; then
-    GANACHE_CLI_ARG=$GANACHE_CLI_ARG" --verbose"
-  fi
-  nohup npx ganache-cli $GANACHE_CLI_ARG >> $CONTRACTS_DIR/ganache.$CURRENTDATE.log 2>&1 &
-  sleep 1
 }
 
 function deploy_contracts() {
@@ -195,7 +182,7 @@ function run_bin() {
   run_prove_workers
   run_rollup
   sleep 10
-  run_eth_node
+  boostrap_contract
   if [ $DX_CLEAN == 'TRUE' ]; then
     deploy_contracts
   else
