@@ -36,7 +36,7 @@ function stop_docker_compose() {
 function stop_docker_composes() {
   stop_docker_compose $ORCHESTRA_DIR orchestra
   stop_docker_compose $FAUCET_DIR faucet
-  cd $BLOCKSCOUT_DIR && docker-compose down --remove-orphans
+  stop_docker_compose $BLOCKSCOUT_DIR blockscout
 }
 
 function clean_data() {
