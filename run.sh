@@ -92,7 +92,7 @@ function start_docker_compose() {
 function run_docker_compose() {
   start_docker_compose $ORCHESTRA_DIR orchestra
   start_docker_compose $FAUCET_DIR faucet
-  start_docker_compose $BLOCKSCOUT_DIR blockscout
+  start_docker_compose $BLOCKSCOUT_DIR blockscout # gananche node & blockscout stuff
   sleep 10
 }
 
