@@ -77,8 +77,8 @@ function prepare_contracts() {
 function config_prover_cluster() {
   cd $PROVER_DIR
 
-  PORT=50055 DB=$ROLLUP_DB WITGEN_INTERVAL=2500 N_WORKERS=10 TARGET_CIRCUIT_DIR=$TARGET_CIRCUIT_DIR N_TXS=$N_TXS $ENVSUB < $PROVER_DIR/config/coordinator.yaml.template > $PROVER_DIR/config/coordinator.yaml
-  TARGET_CIRCUIT_DIR=$TARGET_CIRCUIT_DIR N_TXS=$N_TXS $ENVSUB < $PROVER_DIR/config/client.yaml.template > $PROVER_DIR/config/client.yaml
+  PORT=50055 DB=$ROLLUP_DB WITGEN_INTERVAL=2500 N_WORKERS=10 TARGET_CIRCUIT_DIR=$TARGET_CIRCUIT_DIR N_TXS=$NTXS $ENVSUB < $PROVER_DIR/config/coordinator.yaml.template > $PROVER_DIR/config/coordinator.yaml
+  TARGET_CIRCUIT_DIR=$TARGET_CIRCUIT_DIR N_TXS=$NTXS $ENVSUB < $PROVER_DIR/config/client.yaml.template > $PROVER_DIR/config/client.yaml
 }
 
 # TODO: send different tasks to different tmux windows
