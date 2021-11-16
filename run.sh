@@ -46,7 +46,7 @@ function prepare_circuit() {
   mkdir -p $TARGET_CIRCUIT_DIR
   CIRCUITS_DIR=$CIRCUITS_DIR $ENVSUB > $TARGET_CIRCUIT_DIR/circuit.circom << EOF
 include "${CIRCUITS_DIR}/src/block.circom"
-component main = Block(${NTXS}, ${BALANCELEVELS}, ${ORDERLEVELS}, ${ACCOUNTLEVELS})
+component main = Block(${NTXS}, ${BALANCELEVELS}, ${ORDERLEVELS}, ${ACCOUNTLEVELS});
 EOF
   echo 'circuit source:'
   cat $TARGET_CIRCUIT_DIR/circuit.circom
