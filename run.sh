@@ -58,7 +58,7 @@ EOF
   # if you encounter issues on compile, try using following cmd line instead: 
   # see https://github.com/fluidex/snarkit/issues/14 
   # snarkit compile $TARGET_CIRCUIT_DIR --backend=auto 2>&1 | tee /tmp/snarkit.log
-  snarkit compile $TARGET_CIRCUIT_DIR --verbose --backend=auto 2>&1 | tee /tmp/snarkit.log
+  snarkit2 compile $TARGET_CIRCUIT_DIR --verbose --backend=auto 2>&1 | tee /tmp/snarkit.log
 
   plonkit setup --power 20 --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key
   # plonkit dump-lagrange -c $TARGET_CIRCUIT_DIR/circuit.r1cs --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key --srs_lagrange_form $TARGET_CIRCUIT_DIR/lag.key
