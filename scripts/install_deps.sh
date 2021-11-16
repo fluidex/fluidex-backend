@@ -40,9 +40,10 @@ function install_sys_deps() {
 
 function install_cli_tools() {
   echo 'install some cli tools'
-  npm install -g snarkit
+  npm install -g snarkit2
   npm install -g ganache-cli
   cargo install --git https://github.com/fluidex/plonkit
+  cargo install --git https://github.com/iden3/circom
   cargo install sqlx-cli
   cargo install envsub
 }
