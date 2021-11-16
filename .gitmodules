@@ -22,3 +22,6 @@
 [submodule "blockscout"]
 	path = blockscout
 	url = git@github.com:fluidex/blockscout.git
+[submodule "faucet"]
+	path = faucet
+	url = git@github.com:fluidex/faucet.git
