@@ -45,7 +45,7 @@ function prepare_circuit() {
   #cargo run --bin gen_export_circuit_testcase
   mkdir -p $TARGET_CIRCUIT_DIR
   CIRCUITS_DIR=$CIRCUITS_DIR $ENVSUB > $TARGET_CIRCUIT_DIR/circuit.circom << EOF
-include "${CIRCUITS_DIR}/src/block.circom"
+include "${CIRCUITS_DIR}/src/block.circom";
 component main = Block(${NTXS}, ${BALANCELEVELS}, ${ORDERLEVELS}, ${ACCOUNTLEVELS});
 EOF
   echo 'circuit source:'
