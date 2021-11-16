@@ -22,7 +22,8 @@ BLOCKSCOUT_DIR=$DIR/blockscout
 TARGET_CIRCUIT_DIR=$CIRCUITS_DIR/testdata/Block_$NTXS"_"$BALANCELEVELS"_"$ORDERLEVELS"_"$ACCOUNTLEVELS
 PROVER_DIR=$DIR/prover-cluster
 EXCHANGE_DIR=$DIR/dingir-exchange
-FAUCET_DIR=$DIR/regnbue-bridge
+REGNBUE_DIR=$DIR/regnbue-bridge
+FAUCET_DIR=$DIR/faucet
 CONTRACTS_DIR=$DIR/contracts
 ORCHESTRA_DIR=$DIR/orchestra
 
@@ -69,7 +70,8 @@ function prepare_contracts() {
   rm -f $CONTRACTS_DIR/contracts/Verifier.sol
   plonkit generate-verifier -v $TARGET_CIRCUIT_DIR/vk.bin -s $CONTRACTS_DIR/contracts/Verifier.sol
   cd $CONTRACTS_DIR/
-  git update-index --assume-unchanged $CONTRACTS_DIR/contracts/Verifier.sol
+  # no need for this
+  # git update-index --assume-unchanged $CONTRACTS_DIR/contracts/Verifier.sol
   yarn install
   npx hardhat compile
 }
@@ -86,13 +88,15 @@ function config_prover_cluster() {
 function start_docker_compose() {
   dir=$1
   name=$2
-  docker-compose --file $dir/docker/docker-compose.yaml --project-name $name up --force-recreate --detach
+  cd $dir
+  docker-compose --file docker/docker-compose.yaml --project-name $name up --build --force-recreate --detach
+  cd -
 }
 
 function run_docker_compose() {
   start_docker_compose $ORCHESTRA_DIR orchestra
-  start_docker_compose $FAUCET_DIR faucet
-  start_docker_compose $BLOCKSCOUT_DIR blockscout # ganache node & blockscout stuff
+  start_docker_compose $REGNBUE_DIR faucet
+  start_docker_compose $BLOCKSCOUT_DIR blockscout # geth node & blockscout stuff
   sleep 10
 }
 
@@ -141,16 +145,20 @@ function run_prove_workers() {
 }
 
 function boostrap_contract() {
-  # a mainnet like 50 Gwei gas price
-  # base on 21,000 units limit from mainnet (21,000 units * 50 Gwei)
   cd $CONTRACTS_DIR
   yarn install
+}
+
+function deploy_tokens() {
+  cd $FAUCET_DIR/layer1/contracts
+  yarn install
+  npx hardhat run scripts/deploy.js --network geth
 }
 
 function deploy_contracts() {
   cd $CONTRACTS_DIR
   export GENESIS_ROOT=$(cat $STATE_MNGR_DIR/rollup_state_manager.$CURRENTDATE.log | grep "genesis root" | tail -n1 | awk '{print $9}' | sed 's/Fr(//' | sed 's/)//')
-  export CONTRACT_ADDR=$(retry_cmd_until_ok npx hardhat run scripts/deploy.js --network localhost | grep "FluiDex deployed to:" | awk '{print $4}')
+  export CONTRACT_ADDR=$(retry_cmd_until_ok npx hardhat run scripts/deploy.ts --network geth | grep "FluiDexDelegate deployed to:" | awk '{print $4}')
   echo "export CONTRACT_ADDR=$CONTRACT_ADDR" > $CONTRACTS_DIR/contract-deployed.env
 }
 
@@ -158,22 +166,18 @@ function restore_contracts() {
   source $CONTRACTS_DIR/contract-deployed.env
 }
 
-function post_contracts() {
-  nohup npx hardhat run scripts/tick.js --network localhost >> $CONTRACTS_DIR/ticker.$CURRENTDATE.log 2>&1 &
-}
-
 function run_faucet() {
-  cd $FAUCET_DIR
+  cd $REGNBUE_DIR
   cargo build --release --bin faucet
-  nohup "$FAUCET_DIR/target/release/faucet" >> $FAUCET_DIR/faucet.$CURRENTDATE.log 2>&1 &
+  nohup "$REGNBUE_DIR/target/release/faucet" >> $REGNBUE_DIR/faucet.$CURRENTDATE.log 2>&1 &
 }
 
 # TODO: need to fix task_fetcher, gitignore, comfig template & example, contracts...
 function run_block_submitter() {
-  cd $FAUCET_DIR
+  cd $REGNBUE_DIR
   cargo build --release --bin block_submitter
-  DB=$ROLLUP_DB CONTRACTS_DIR=$CONTRACTS_DIR CONTRACT_ADDR=$CONTRACT_ADDR $ENVSUB < $FAUCET_DIR/config/block_submitter.yaml.template > $FAUCET_DIR/config/block_submitter.yaml
-  nohup "$FAUCET_DIR/target/release/block_submitter" >> $FAUCET_DIR/block_submitter.$CURRENTDATE.log 2>&1 &
+  DB=$ROLLUP_DB CONTRACTS_DIR=$CONTRACTS_DIR CONTRACT_ADDR=$CONTRACT_ADDR $ENVSUB < $REGNBUE_DIR/config/block_submitter.yaml.template > $REGNBUE_DIR/config/block_submitter.yaml
+  nohup "$REGNBUE_DIR/target/release/block_submitter" >> $REGNBUE_DIR/block_submitter.$CURRENTDATE.log 2>&1 &
 }
 
 function run_bin() {
@@ -182,19 +186,19 @@ function run_bin() {
   run_prove_workers
   run_rollup
   sleep 10
+  deploy_tokens
   boostrap_contract
   if [ $DX_CLEAN == 'TRUE' ]; then
     deploy_contracts
   else
     restore_contracts
   fi
-  post_contracts
   run_faucet
   run_block_submitter
 }
 
 function setup() {
-  handle_submodule
+  #handle_submodule
   prepare_circuit
   prepare_contracts
 }
