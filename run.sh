@@ -150,7 +150,7 @@ function boostrap_contract() {
 function deploy_contracts() {
   cd $CONTRACTS_DIR
   export GENESIS_ROOT=$(cat $STATE_MNGR_DIR/rollup_state_manager.$CURRENTDATE.log | grep "genesis root" | tail -n1 | awk '{print $9}' | sed 's/Fr(//' | sed 's/)//')
-  export CONTRACT_ADDR=$(retry_cmd_until_ok npx hardhat run scripts/deploy.js --network localhost | grep "FluiDex deployed to:" | awk '{print $4}')
+  export CONTRACT_ADDR=$(retry_cmd_until_ok npx hardhat run scripts/deploy.js --network geth | grep "FluiDex deployed to:" | awk '{print $4}')
   echo "export CONTRACT_ADDR=$CONTRACT_ADDR" > $CONTRACTS_DIR/contract-deployed.env
 }
 
