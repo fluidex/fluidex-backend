@@ -86,7 +86,10 @@ function config_prover_cluster() {
 function start_docker_compose() {
   dir=$1
   name=$2
-  docker-compose --file $dir/docker/docker-compose.yaml --project-name $name up --force-recreate --detach
+  # docker-compose --file $dir/docker/docker-compose.yaml --project-name $name up --force-recreate --detach
+  cd $dir
+  docker-compose --file docker/docker-compose.yaml --project-name $name up --build --force-recreate --detach
+  cd -
 }
 
 function run_docker_compose() {
