@@ -102,6 +102,8 @@ function run_docker_compose() {
 
 function run_matchengine() {
   cd $EXCHANGE_DIR
+  cp /tmp/markets_preset.sql migrations/20210223072038_markets_preset.sql
+  git update-index --assume-unchanged migrations/20210223072038_markets_preset.sql
   make startall
   #cargo build --bin matchengine
   #nohup $EXCHANGE_DIR/target/debug/matchengine >> $EXCHANGE_DIR/matchengine.$CURRENTDATE.log 2>&1 &
@@ -181,18 +183,20 @@ function run_block_submitter() {
 }
 
 function run_bin() {
-  run_matchengine
-  run_prove_master
-  run_prove_workers
-  run_rollup
-  sleep 10
   deploy_tokens
+  sleep 10
   boostrap_contract
   if [ $DX_CLEAN == 'TRUE' ]; then
     deploy_contracts
   else
     restore_contracts
   fi
+
+  run_matchengine
+  run_prove_master
+  run_prove_workers
+  run_rollup
+  
   run_faucet
   run_block_submitter
 }
