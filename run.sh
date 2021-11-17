@@ -184,6 +184,12 @@ function run_block_submitter() {
 
 function run_bin() {
   deploy_tokens
+  
+  run_matchengine
+  run_prove_master
+  run_prove_workers
+  run_rollup
+
   sleep 10
   boostrap_contract
   if [ $DX_CLEAN == 'TRUE' ]; then
@@ -191,18 +197,13 @@ function run_bin() {
   else
     restore_contracts
   fi
-
-  run_matchengine
-  run_prove_master
-  run_prove_workers
-  run_rollup
   
   run_faucet
   run_block_submitter
 }
 
 function setup() {
-  #handle_submodule
+  handle_submodule
   prepare_circuit
   prepare_contracts
 }
