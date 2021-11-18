@@ -218,7 +218,7 @@ function run_all() {
   run_docker_compose
   run_bin
   run_ticker
-  start_docker_compose $BLOCKSCOUT_DIR blockscout
+  start_docker_compose $BLOCKSCOUT_DIR blockscout # blockscout depends on eth_node, so we run it later
 }
 
 if [[ -z ${AS_RESOURCE+x}  ]]; then
