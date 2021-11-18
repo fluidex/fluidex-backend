@@ -61,7 +61,7 @@ EOF
   snarkit compile $TARGET_CIRCUIT_DIR --verbose --backend=auto 2>&1 | tee /tmp/snarkit.log
 
   plonkit setup --power 20 --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key
-  plonkit dump-lagrange -c $TARGET_CIRCUIT_DIR/circuit.r1cs --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key --srs_lagrange_form $TARGET_CIRCUIT_DIR/lag.key
+  # plonkit dump-lagrange -c $TARGET_CIRCUIT_DIR/circuit.r1cs --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key --srs_lagrange_form $TARGET_CIRCUIT_DIR/lag.key
   plonkit export-verification-key -c $TARGET_CIRCUIT_DIR/circuit.r1cs --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key -v $TARGET_CIRCUIT_DIR/vk.bin
 }
 
