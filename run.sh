@@ -15,6 +15,9 @@ fi
 
 export DIRTY=true
 
+DX_NETWORK=${DX_NETWORK:-geth}
+WEB3_URL=${WEB3_URL:-http://localhost:8545}
+
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)"
 STATE_MNGR_DIR=$DIR/rollup-state-manager
 CIRCUITS_DIR=$DIR/circuits
@@ -96,7 +99,9 @@ function start_docker_compose() {
 function run_docker_compose() {
   start_docker_compose $ORCHESTRA_DIR orchestra
   start_docker_compose $REGNBUE_DIR faucet
-  start_docker_compose $BLOCKSCOUT_DIR blockscout # geth node & blockscout stuff
+  if [ $DX_NETWORK == 'geth' ]; then
+    start_docker_compose $BLOCKSCOUT_DIR blockscout # geth node & blockscout stuff
+  fi
   sleep 10
 }
 
@@ -154,13 +159,13 @@ function boostrap_contract() {
 function deploy_tokens() {
   cd $FAUCET_DIR/layer1/contracts
   yarn install
-  npx hardhat run scripts/deploy.js --network geth
+  npx hardhat run scripts/deploy.js --network $DX_NETWORK
 }
 
 function deploy_contracts() {
   cd $CONTRACTS_DIR
   export GENESIS_ROOT=$(cat $STATE_MNGR_DIR/rollup_state_manager.$CURRENTDATE.log | grep "genesis root" | tail -n1 | awk '{print $9}' | sed 's/Fr(//' | sed 's/)//')
-  export CONTRACT_ADDR=$(retry_cmd_until_ok npx hardhat run scripts/deploy.ts --network geth | grep "FluiDexDelegate deployed to:" | awk '{print $4}')
+  export CONTRACT_ADDR=$(retry_cmd_until_ok npx hardhat run scripts/deploy.ts --network $DX_NETWORK | grep "FluiDexDelegate deployed to:" | awk '{print $4}')
   echo "export CONTRACT_ADDR=$CONTRACT_ADDR" > $CONTRACTS_DIR/contract-deployed.env
 }
 
@@ -178,7 +183,7 @@ function run_faucet() {
 function run_block_submitter() {
   cd $REGNBUE_DIR
   cargo build --release --bin block_submitter
-  DB=$ROLLUP_DB CONTRACTS_DIR=$CONTRACTS_DIR CONTRACT_ADDR=$CONTRACT_ADDR $ENVSUB < $REGNBUE_DIR/config/block_submitter.yaml.template > $REGNBUE_DIR/config/block_submitter.yaml
+  DB=$ROLLUP_DB CONTRACTS_DIR=$CONTRACTS_DIR CONTRACT_ADDR=$CONTRACT_ADDR WEB3_URL=$WEB3_URL $ENVSUB < $REGNBUE_DIR/config/block_submitter.yaml.template > $REGNBUE_DIR/config/block_submitter.yaml
   nohup "$REGNBUE_DIR/target/release/block_submitter" >> $REGNBUE_DIR/block_submitter.$CURRENTDATE.log 2>&1 &
 }
 
