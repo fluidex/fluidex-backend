@@ -5,6 +5,8 @@ EXCHANGE_DB="postgres://exchange:exchange_AA9944@127.0.0.1:5432/exchange"
 # db related
 prover_status:
 	psql $(PROVER_DB) -c "select status, count(*) from task group by status UNION ALL SELECT null status, COUNT(status) from task"
+block_status:
+	psql $(PROVER_DB) -c "select status, count(*) from l2block group by status UNION ALL SELECT null status, COUNT(status) from l2block"
 new_trades:
 	psql $(EXCHANGE_DB) -c 'select * from market_trade order by time desc limit 10;'
 new_blocks:
