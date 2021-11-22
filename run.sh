@@ -144,7 +144,8 @@ function run_eth_node() {
   # base on 21,000 units limit from mainnet (21,000 units * 50 Gwei)
   cd $CONTRACTS_DIR
   yarn install
-  GANACHE_CLI_ARG="--networkId 53371 \
+  GANACHE_CLI_ARG="--host 0.0.0.0 \
+      --networkId 53371 \
       --chainId 53371 \
       --db $CONTRACTS_DIR/ganache \
       --gasPrice 50000000000 \
