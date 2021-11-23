@@ -25,3 +25,6 @@
 [submodule "faucet"]
 	path = faucet
 	url = git@github.com:fluidex/faucet.git
+[submodule "eth_listener"]
+	path = eth_listener
+	url = https://github.com/fluidex/eth_listener
