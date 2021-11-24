@@ -147,6 +147,7 @@ function run_eth_node() {
   GANACHE_CLI_ARG="--host 0.0.0.0 \
       --networkId 53371 \
       --chainId 53371 \
+      --blocktime 15 \
       --db $CONTRACTS_DIR/ganache \
       --gasPrice 50000000000 \
       --gasLimit 1050000000000000 \
@@ -203,7 +204,7 @@ function run_bin() {
   else
     restore_contracts
   fi
-  post_contracts
+  # post_contracts
   run_faucet
   run_block_submitter
 }
