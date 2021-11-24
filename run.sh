@@ -147,6 +147,7 @@ function run_eth_node() {
   GANACHE_CLI_ARG="--host 0.0.0.0 \
       --networkId 53371 \
       --chainId 53371 \
+      --blockTime 15 \
       --db $CONTRACTS_DIR/ganache \
       --gasPrice 50000000000 \
       --gasLimit 1050000000000000 \
@@ -171,10 +172,6 @@ function deploy_contracts() {
 
 function restore_contracts() {
   source $CONTRACTS_DIR/contract-deployed.env
-}
-
-function post_contracts() {
-  nohup npx hardhat run scripts/tick.js --network localhost >> $CONTRACTS_DIR/ticker.$CURRENTDATE.log 2>&1 &
 }
 
 function run_faucet() {
@@ -203,7 +200,6 @@ function run_bin() {
   else
     restore_contracts
   fi
-  post_contracts
   run_faucet
   run_block_submitter
 }
