@@ -174,10 +174,6 @@ function restore_contracts() {
   source $CONTRACTS_DIR/contract-deployed.env
 }
 
-function post_contracts() {
-  nohup npx hardhat run scripts/tick.js --network localhost >> $CONTRACTS_DIR/ticker.$CURRENTDATE.log 2>&1 &
-}
-
 function run_faucet() {
   cd $FAUCET_DIR
   cargo build --release --bin faucet
@@ -204,7 +200,6 @@ function run_bin() {
   else
     restore_contracts
   fi
-  # post_contracts
   run_faucet
   run_block_submitter
 }
