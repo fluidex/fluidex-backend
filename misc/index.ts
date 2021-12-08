@@ -11,12 +11,12 @@ import deployed from '/tmp/deployed.json';
 
 const amount = 5e11;
 const fluidexDelegateAddr = deployed.FluiDexDelegate;
-const fluidexAddr = deployed.FluiDexDemo;
+// const fluidexAddr = deployed.FluiDexDemo;
 
 async function main() {
   const provider = new ethers.providers.InfuraProvider('goerli', infuraApiKey);
   let erc20Txs = new Array();
-  for (let i = 0; i < 20; ++i) {
+  for (let i = 0; i < 4; ++i) {
     const account = getTestAccount(i);
     const bjjPubKey = Account.fromMnemonic(account.mnemonic).bjjPubKey;
     const wallet = ethers.Wallet.fromMnemonic(account.mnemonic);
@@ -28,7 +28,7 @@ async function main() {
       const mint = tokenContract.functions.mint;
       const increaseAllowance = tokenContract.functions.increaseAllowance;
       const mintTx = mint(wallet.address, amount, { nonce: nonce++ });
-      const increaseAllowanceTx = increaseAllowance(fluidexAddr, amount, { nonce: nonce++ });
+      const increaseAllowanceTx = increaseAllowance(fluidexDelegateAddr, amount, { nonce: nonce++ });
       erc20Txs.push(mintTx);
       erc20Txs.push(increaseAllowanceTx);
 
@@ -39,9 +39,9 @@ async function main() {
     }
     console.log('batch send transcations for ', walletSigner.address);
   }
-  console.log('wait for all transcation got 3 confirmations');
+  console.log('wait for all transcation got 1 confirmations');
   // @ts-ignore
-  await Promise.all(erc20Txs.map((tx) => tx.then((receipt) => receipt.wait(3))));
+  await Promise.all(erc20Txs.map((tx) => tx.then((receipt) => receipt.wait(1)).catch((e) => console.log('error occurs: %s\nwait for all transcations for clean shutdown'))));
 }
 
 main()
