@@ -28,6 +28,8 @@ EXCHANGE_DIR=$DIR/dingir-exchange
 REGNBUE_DIR=$DIR/regnbue-bridge
 FAUCET_DIR=$DIR/faucet
 CONTRACTS_DIR=$DIR/contracts
+MISC_DIR=$DIR/misc
+LISTENER_DIR=$DIR/eth_listener
 ORCHESTRA_DIR=$DIR/orchestra
 
 ROLLUP_DB="postgres://rollup:rollup_AA9944@127.0.0.1:5433/rollup"
@@ -169,9 +171,22 @@ function deploy_contracts() {
   echo "export CONTRACT_ADDR=$CONTRACT_ADDR" > $CONTRACTS_DIR/contract-deployed.env
 }
 
+function run_misc_scripts() {
+  cd $MISC_DIR
+  yarn install
+  npx ts-node index.ts # todo: local network
+}
+
 function restore_contracts() {
   source $CONTRACTS_DIR/contract-deployed.env
 }
+
+# function run_listener {
+#   cd $LISTENER_DIR
+#   CONTRACT_FILE=$CONTRACTS_DIR/artifacts/contracts/FluiDex.sol/FluiDexDemo.json $ENVSUB < $LISTENER_DIR/build-config.toml.template > $LISTENER_DIR/build-config.toml
+#   cargo build --release
+#   WEB3_URL=$WEB3_URL CONTRACT_ADDRESS=CONTRACT_ADDR
+# }
 
 function run_faucet() {
   cd $REGNBUE_DIR
@@ -199,6 +214,8 @@ function run_bin() {
   boostrap_contract
   if [ $DX_CLEAN == 'TRUE' ]; then
     deploy_contracts
+    sleep 30
+    run_misc_scripts
   else
     restore_contracts
   fi
