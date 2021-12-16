@@ -10,7 +10,7 @@ async function main() {
     const CONTRACT_ADDRESS = deployed.FluiDexDelegate;
     const INNER_CONTRACT_ADDRESS = deployed.FluiDexDemo;
     const BASE_BLOCK = deployed.baseBlock;
-    console.log(eval("`" + listener_template + "`"));
+    fs.writeFileSync("../eth_listener/config.toml", eval("`" + listener_template + "`"));
 }
 
 main()
