@@ -21,27 +21,34 @@ async function main() {
     const bjjPubKey = Account.fromMnemonic(account.mnemonic).bjjPubKey;
     const wallet = ethers.Wallet.fromMnemonic(account.mnemonic);
     const walletSigner = wallet.connect(provider);
-    let nonce = await walletSigner.getTransactionCount();
+    // let nonce = await walletSigner.getTransactionCount();
     
     for (const token of tokens) {
       const tokenContract = new ethers.Contract(token.address, tokenAbi, walletSigner);
       const mint = tokenContract.functions.mint;
       const increaseAllowance = tokenContract.functions.increaseAllowance;
-      const mintTx = mint(wallet.address, amount, { nonce: nonce++ });
-      const increaseAllowanceTx = increaseAllowance(fluidexDelegateAddr, amount, { nonce: nonce++ });
-      erc20Txs.push(mintTx);
-      erc20Txs.push(increaseAllowanceTx);
+      // const mintTx = mint(wallet.address, amount, { nonce: nonce++ });
+      const mintTx = await mint(wallet.address, amount);
+      await mintTx.wait(1);
+      // const increaseAllowanceTx = increaseAllowance(fluidexDelegateAddr, amount, { nonce: nonce++ });
+      const increaseAllowanceTx = await increaseAllowance(fluidexDelegateAddr, amount);
+      await increaseAllowanceTx.wait(1);
+      // erc20Txs.push(mintTx);
+      // erc20Txs.push(increaseAllowanceTx);
 
       const fluidexContract = new ethers.Contract(fluidexDelegateAddr, fluidexAbi, walletSigner);
       const depositERC20 = fluidexContract.functions.depositERC20;
-      const tx = depositERC20(token.address, bjjPubKey, amount, { nonce: nonce++, gasLimit: 2.5e7 });
-      erc20Txs.push(tx);
+      // const tx = depositERC20(token.address, bjjPubKey, amount, { nonce: nonce++, gasLimit: 2.5e7 });
+      const tx = await depositERC20(token.address, bjjPubKey, amount, { gasLimit: 2.5e7 });
+      await tx.wait(1);
+      // erc20Txs.push(tx);
     }
+    // console.log('batch send transcations for ', walletSigner.address);
     console.log('batch send transcations for ', walletSigner.address);
   }
-  console.log('wait for all transcation got 1 confirmations');
+  // console.log('wait for all transcation got 1 confirmations');
   // @ts-ignore
-  await Promise.all(erc20Txs.map((tx) => tx.then((receipt) => receipt.wait(1)).catch((e) => console.log('error occurs: %s\nwait for all transcations for clean shutdown'))));
+  // await Promise.all(erc20Txs.map((tx) => tx.then((receipt) => receipt.wait(1)).catch((e) => console.log('error occurs: %s\nwait for all transcations for clean shutdown'))));
 }
 
 main()
