@@ -33,6 +33,7 @@ LISTENER_DIR=$DIR/eth_listener
 ORCHESTRA_DIR=$DIR/orchestra
 
 ROLLUP_DB="postgres://rollup:rollup_AA9944@127.0.0.1:5433/rollup"
+LISTENER_DB="postgresql://listener:listener_AA9944@0.0.0.0:5437/eth_listener"
 
 CURRENTDATE=$(date +"%Y-%m-%d")
 
@@ -175,18 +176,20 @@ function run_misc_scripts() {
   cd $MISC_DIR
   yarn install
   npx ts-node index.ts # todo: local network
+  npx ts-node gen_config.ts # generate listener config
 }
 
 function restore_contracts() {
   source $CONTRACTS_DIR/contract-deployed.env
 }
 
-# function run_listener {
-#   cd $LISTENER_DIR
-#   CONTRACT_FILE=$CONTRACTS_DIR/artifacts/contracts/FluiDex.sol/FluiDexDemo.json $ENVSUB < $LISTENER_DIR/build-config.toml.template > $LISTENER_DIR/build-config.toml
-#   cargo build --release
-#   WEB3_URL=$WEB3_URL CONTRACT_ADDRESS=CONTRACT_ADDR
-# }
+function run_listener {
+  cd $LISTENER_DIR
+  CONTRACT_FILE=$CONTRACTS_DIR/artifacts/contracts/FluiDex.sol/FluiDexDemo.json DELEGATE_CONTRACT_FILE=$CONTRACTS_DIR/artifacts/contracts/FluiDexDelegate.sol/FluiDexDelegate.json $ENVSUB < $LISTENER_DIR/build-config.toml.template > $LISTENER_DIR/build-config.toml
+  cargo build --release
+  psql $LISTENER_DB < init.sql 
+  nohup "$LISTENER_DIR/target/release/eth_listener" >> $LISTENER_DIR/eth_listener.$CURRENTDATE.log 2>&1 &
+}
 
 function run_faucet() {
   cd $REGNBUE_DIR
@@ -220,6 +223,7 @@ function run_bin() {
     restore_contracts
   fi
   
+  run_listener
   run_faucet
   run_block_submitter
 }
