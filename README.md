@@ -40,6 +40,9 @@ Ubuntu 20.04 is the only supported environment currently. You could speed up the
 # including rust / docker / docker-compose / nodejs etc.
 $ bash scripts/install_all.sh
 
+# set the keystore path and password env in `goerli.env` to test on goerli
+$ source goerli.env
+
 # compile zk circuits and setup circuits locally
 # start databases and message queue with docker compose
 # and launch all the services
@@ -71,6 +74,7 @@ set env `DX_CLEAN` with `false` (case insensitive) to skip data purging stage wh
 # TODOs
 
 * Data availability. And change original inputs as private, then use their hash as the (single) public input.
+* Local dev-net might be broken cause by recent changes (move to goerli).
 
 # Known Issues
 
