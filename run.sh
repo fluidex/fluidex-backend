@@ -70,9 +70,14 @@ EOF
   plonkit setup --power 20 --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key
   # plonkit dump-lagrange -c $TARGET_CIRCUIT_DIR/circuit.r1cs --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key --srs_lagrange_form $TARGET_CIRCUIT_DIR/lag.key
   plonkit export-verification-key -c $TARGET_CIRCUIT_DIR/circuit.r1cs --srs_monomial_form $TARGET_CIRCUIT_DIR/mon.key -v $TARGET_CIRCUIT_DIR/vk.bin
+
+  rm -f $CONTRACTS_DIR/contracts/Operations.sol
+  npx ejs tpl/ejs/extra/contracts.demo/contracts/Operations.sol.ejs -o $CONTRACTS_DIR/contracts/Operations.sol -i "{\"BALANCELEVELS\": ${BALANCELEVELS}, \"ACCOUNTLEVELS\": ${ACCOUNTLEVELS}, \"ORDERLEVELS\": ${ORDERLEVELS}"
+  
 }
 
 function prepare_contracts() {
+
   rm -f $CONTRACTS_DIR/contracts/Verifier.sol
   plonkit generate-verifier -v $TARGET_CIRCUIT_DIR/vk.bin -s $CONTRACTS_DIR/contracts/Verifier.sol
   cd $CONTRACTS_DIR/
@@ -121,7 +126,7 @@ function run_matchengine() {
 function run_ticker() {
   cd $EXCHANGE_DIR/examples/js/
   npm i
-  nohup npx ts-node tick.ts >> $EXCHANGE_DIR/tick.$CURRENTDATE.log 2>&1 &
+  nohup npx ts-node tests/tick_no_deploy.ts >> $EXCHANGE_DIR/tick.$CURRENTDATE.log 2>&1 &
 }
 
 function run_rollup() {
@@ -189,6 +194,7 @@ function deploy_contracts() {
   cd $CONTRACTS_DIR
   export GENESIS_ROOT=$(cat $STATE_MNGR_DIR/rollup_state_manager.$CURRENTDATE.log | grep "genesis root" | tail -n1 | awk '{print $9}' | sed 's/Fr(//' | sed 's/)//')
   export CONTRACT_ADDR=$(retry_cmd_until_ok npx hardhat run scripts/deploy.ts --network $DX_NETWORK | grep "FluiDexDelegate deployed to:" | awk '{print $4}')
+  npx hardhat run scripts/deposit.ts --network $DX_NETWORK
   echo "export CONTRACT_ADDR=$CONTRACT_ADDR" > $CONTRACTS_DIR/contract-deployed.env
 }
 

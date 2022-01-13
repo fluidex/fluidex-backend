@@ -73,7 +73,8 @@ set env `DX_CLEAN` with `false` (case insensitive) to skip data purging stage wh
 
 # TODOs
 
-* Data availability. And change original inputs as private, then use their hash as the (single) public input.
+* Data availability only support registry and deposit.
+* Change original inputs as private, then use their hash as the (single) public input.
 * Local dev-net might be broken cause by recent changes (move to goerli).
 
 # Known Issues
